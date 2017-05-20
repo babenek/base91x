@@ -12,4 +12,5 @@ Encoded string size ~ 1.231 * original size.
 There is possibility to extend the algorithm to use 89 codes during decode.
 The alphabet transforms from base91 value with operation XOR(0x7F) with tree exceptions.
 The alphabet:
+
 !~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-+*)($&%
