@@ -1,0 +1,1 @@
+/home/user/android/android-ndk-r19b/ndk-build NDK_PROJECT_PATH=/home/user/android/proj APP_PLATFORM=android-23 NDK_APPLICATION_MK=/home/user/android/proj/jni/Application.mk
