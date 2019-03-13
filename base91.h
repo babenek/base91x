@@ -27,7 +27,7 @@ SOFTWARE.
 #include <vector>
 #include <string>
 
-#if __CHAR_BIT__ != 8
+#if __CHAR_BIT__!=8
 #error DESIGNED ONLY FOR 8 BIT BYTE (CHAR)
 #endif
 
@@ -75,25 +75,23 @@ protected:
 	 * @param a[in] - number 0 - 90
 	 * @return symbol from alphabet or -1 if input is out of alphabet
 	 */
-	static inline char encodeSymbol(const char a)
+	static inline char
+	encodeSymbol(const char a)
 	{
 		switch (a)
 		{
-		case '\0':
-			return '!';
-			break;
-		case '#':
-			return '#';
-			break;
-		case 'X':
-			return '$';
-			break;
-		default:
-			if ('\0' <= a and base > a)
-			{
-				return 0x7F ^ a;
-			}
-			break;
+			case '\0': return '!';
+				break;
+			case '#': return '#';
+				break;
+			case 'X': return '$';
+				break;
+			default:
+				if ('\0' <= a and base > a)
+				{
+					return 0x7F ^ a;
+				}
+				break;
 		}
 		return -1;
 	}
@@ -103,25 +101,35 @@ protected:
 	 * @param a[in] - any symbol
 	 * @return 0-90 if symbol is in alphabet -1 - in other case
 	 */
-	static inline char decodeSymbol(const char a)
+	static inline char
+	decodeSymbol(const char a)
 	{
 		switch (a)
 		{
-		case '!':
-			return '\0';
-			break;
-		case '#':
-			return '#';
-			break;
-		case '$':
-			return 'X';
-			break;
-		default:
-			if ('!' <= a and '~' >= a and '\'' != a and '\"' != a and '\\' != a)
+			case '!':
 			{
-				return 0x7F ^ a;
+				return '\0';
 			}
-			break;
+				break;
+			case '#':
+			{
+				return '#';
+			}
+				break;
+			case '$':
+			{
+				return 'X';
+			}
+				break;
+			default:
+			{
+
+				if ('!' <= a and '~' >= a and '\''!=a and '\"'!=a and '\\'!=a)
+				{
+					return 0x7F ^ a;
+				}
+			}
+				break;
 		}
 		return -1;
 	}
@@ -134,13 +142,14 @@ public:
 	 * @param dummy - do not use
 	 */
 	template<typename Container>
-	static void encode(const Container & in, std::string & out,
-		typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type*
-		dummy = nullptr)
+	static void
+	encode(const Container &in, std::string &out,
+		   typename std::enable_if<sizeof(typename Container::value_type)==sizeof(char)>::type *
+		   dummy = nullptr)
 	{
 		out.clear();
 		// reserved a bit more than necessary to avoid extra calculation
-		out.reserve(char_bit + (b91word_bit * in.size()) / (2 * char_bit));
+		out.reserve(char_bit + (b91word_bit*in.size())/(2*char_bit));
 
 		auto HI = new char[b91word_size];
 		auto LO = new char[b91word_size];
@@ -153,7 +162,7 @@ public:
 			{
 				LO[n] = encodeSymbol(lo);
 				HI[n] = encodeSymbol(hi);
-				if (base == (++lo))
+				if (base==(++lo))
 				{
 					lo = 0;
 					hi++;
@@ -165,7 +174,7 @@ public:
 		unsigned collector = 0;
 		unsigned bit_collected = 0;
 
-		for (auto & n : in)
+		for (auto &n : in)
 		{
 			collector |= static_cast<unsigned char>(n) << bit_collected;
 			bit_collected += char_bit;
@@ -179,7 +188,7 @@ public:
 			}
 		}
 
-		if (0 != bit_collected)
+		if (0!=bit_collected)
 		{
 			const unsigned cod = b91word_mask & collector;
 			out.push_back(LO[cod]);
@@ -202,30 +211,31 @@ public:
 	 * @param dummy - do not use
 	 */
 	template<typename Container>
-	static void decode(const std::string & in, Container & out,
-		typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type*
-		dummy = nullptr)
+	static void
+	decode(const std::string &in, Container &out,
+		   typename std::enable_if<sizeof(typename Container::value_type)==sizeof(char)>::type *
+		   dummy = nullptr)
 	{
 		out.clear();
 		// reserved a bit more than necessary to avoid extra calculation
-		out.reserve(char_bit + (2 * char_bit * in.size()) / b91word_bit);
+		out.reserve(char_bit + (2*char_bit*in.size())/b91word_bit);
 
 		auto ZYX = new char[1 << char_bit];
 		for (unsigned n = 0; n < (1 << char_bit); ++n)
 		{
-			// fill rewerse alphabet
+			// fill reverse alphabet
 			ZYX[n] = decodeSymbol(n);
 		}
 		auto HILO = new short[base][base];
 		{
-			// fill rewerse codes
+			// fill reverse codes
 			unsigned hi = 0;
 			unsigned lo = 0;
 
 			for (unsigned n = 0; n < b91word_size; ++n)
 			{
 				HILO[hi][lo] = n;
-				if (base == (++lo))
+				if (base==(++lo))
 				{
 					lo = 0;
 					hi++;
@@ -242,20 +252,20 @@ public:
 		int bit_collected = 0;
 		char lower = -1;
 
-		for (auto & n : in)
+		for (auto &n : in)
 		{
 			const char digit = ZYX[n];
-			if (-1 == digit)
+			if (-1==digit)
 			{
 				continue;
 			}
-			if (-1 == lower)
+			if (-1==lower)
 			{
 				lower = digit;
 				continue;
 			}
 			const short cod = HILO[digit][lower];
-			if (b91word_mask & cod != cod)
+			if ((b91word_mask & cod)!=cod)
 			{
 				lower = -1;
 				continue;
@@ -273,7 +283,7 @@ public:
 			}
 		}
 
-		if (-1 != lower)
+		if (-1!=lower)
 		{
 			collector |= HILO[0][lower] << bit_collected;
 			bit_collected += (char_bit - 1);
@@ -287,7 +297,6 @@ public:
 		delete[] HILO;
 		delete[] ZYX;
 
-		return;
 	}
 
 };
