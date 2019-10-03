@@ -24,3 +24,10 @@ The alphabet transforms from base91 value with operation XOR(0x7F) with tree exc
 The alphabet:
 
 !~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-+*)($&%
+
+PAY ATTENTION:
+Encoded string may have unpleased sequence /* or */ 
+It may hurt C or C++ code when the string is placed into code.
+But sequence %%% should not appear. So, encoded string might be placed with raw string literal:
+
+char string[]=R"%%%( a string )%%%";
