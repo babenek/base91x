@@ -149,7 +149,7 @@ public:
 	{
 		out.clear();
 		// reserved a bit more than necessary to avoid extra calculation
-		out.reserve(char_bit + (b91word_bit*in.size())/(2*char_bit));
+		out.reserve(char_bit + ((2 * char_bit)*in.size()) / (b91word_bit));
 
 		auto HI = new char[b91word_size];
 		auto LO = new char[b91word_size];
@@ -218,7 +218,7 @@ public:
 	{
 		out.clear();
 		// reserved a bit more than necessary to avoid extra calculation
-		out.reserve(char_bit + (2*char_bit*in.size())/b91word_bit);
+		out.reserve(char_bit + (b91word_bit*in.size()) / (2 * char_bit));
 
 		auto ZYX = new char[1 << char_bit];
 		for (unsigned n = 0; n < (1 << char_bit); ++n)
