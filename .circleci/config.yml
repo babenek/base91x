@@ -1,10 +1,17 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-# Use a package of configuration called an orb.
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-# Orchestrate or schedule a set of jobs
+jobs:
+  build:
+    docker:
+      - image: ubuntu 18.04
+    steps:
+      - checkout
+      - run: cmake .
+      - run: make
+      - run: md5sum base91 > base91.md5
+      - run: ./base91 -e base91 base91.b91
+      - run: mv base91 base91.bak
+      - run: ./base91.bak -d base91.b91 base91
+      - run: md5sum -c base91.md5
 workflows:
   # Name the workflow "welcome"
   welcome:
