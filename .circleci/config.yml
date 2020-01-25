@@ -14,7 +14,7 @@ jobs:
       - run: md5sum -c base91.md5
 workflows:
   # Name the workflow "welcome"
-  welcome:
+  build_and_check:
     # Run the welcome/run job in its own container
     jobs:
-      - welcome/run
+      - build
