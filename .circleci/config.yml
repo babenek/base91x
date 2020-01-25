@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: ubuntu:18.04
     steps:
-      - run: apt-get update && apt get install cmake
+      - run: apt-get update && apt-get install cmake
       - checkout
       - run: cmake .
       - run: make
