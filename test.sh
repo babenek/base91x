@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 for n in `seq 0 16384`;
 do
     original="/dev/shm/$n.original"
