@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -13,3 +17,7 @@ jobs:
       run: echo Hello, world!
     - name: Run a multi-line script
       run: cmake . && make
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo "$GITHUB_CONTEXT"
