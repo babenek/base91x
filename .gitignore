@@ -1,0 +1,7 @@
+# Git files
+!.gitignore
+.*
+*.orig
+*.user
+*.autosave
+__*
