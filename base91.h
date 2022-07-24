@@ -132,6 +132,39 @@ protected:
 
 public:
     /**
+     * Calculate exactly size required for encoded data
+     * @param size - size of data to encoding
+     * @return size of encoded data
+     */
+    static inline size_t compute_encoded_size(size_t size)
+    {
+        size <<= 4;
+        if (0 != size % b91word_bit)
+        {
+            size /= b91word_bit;
+            size += 1;
+        }
+        else
+        {
+            size /= b91word_bit;
+        }
+        return size;
+    }
+
+    /**
+     * Assume maximal size for decoded data
+     * Final size may be less due some of symbols are skipped
+     * @param size - size of data to decoding
+     * @return maximal size of decoded data
+     */
+    static inline size_t assume_decoded_size(size_t size)
+    {
+        size *= 13;
+        size >>= 4;
+        return size;
+    }
+
+    /**
      * Encode 8bit based container(vector) to string
      * @param in - 8bit based std::vector
      * @param out - std::string
@@ -142,8 +175,7 @@ public:
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
         out.clear();
-        // reserved a bit more than necessary to avoid extra calculation
-        out.reserve(char_bit + ((2 * char_bit) * in.size()) / (b91word_bit));
+        out.reserve(compute_encoded_size(in.size()));
 
         auto HI = new char[b91word_size];
         auto LO = new char[b91word_size];
@@ -209,8 +241,7 @@ public:
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
         out.clear();
-        // reserved a bit more than necessary to avoid extra calculation
-        out.reserve(char_bit + (b91word_bit * in.size()) / (2 * char_bit));
+        out.reserve(assume_decoded_size(in.size()));
 
         auto ZYX = new char[1 << char_bit];
         for (unsigned n = 0; n < (1 << char_bit); ++n)
@@ -223,25 +254,25 @@ public:
             // fill reverse codes
             unsigned hi = 0;
             unsigned lo = 0;
-            std::cerr << "[[";
+            //            std::cerr << "[[";
             for (unsigned n = 0; n < b91word_size; ++n)
             {
-                std::cerr << n << ",";
+                //                std::cerr << n << ",";
                 HILO[hi][lo] = n;
                 if (base == (++lo))
                 {
                     lo = 0;
                     hi++;
-                    std::cerr << "]," << std::endl << "[";
+                    //                    std::cerr << "]," << std::endl << "[";
                 }
             }
             // subzero values to optional purpose
             for (int n = 2; n < static_cast<int>(base); ++n)
             {
                 HILO[base - 1][n] = 0 - n;
-                std::cerr << 0 - n << ",";
+                //                std::cerr << 0 - n << ",";
             }
-            std::cerr << "]]" << std::endl;
+            //            std::cerr << "]]" << std::endl;
         }
 
         unsigned collector = 0;
