@@ -31,3 +31,6 @@ It may hurt C or C++ code when the string is placed into code.
 But sequence %%% should not appear. So, encoded string might be placed with raw string literal:
 
 char string[]=R"%%%( a string )%%%";
+
+Workaround: use space | line feed | tab in encoded text to break wrong sequence due the algorithm skips non alphabet symbols.
+e.g. Ma^7*/0629 -> Ma^7* /0629 
