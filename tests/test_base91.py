@@ -1,0 +1,13 @@
+import unittest
+
+import base91
+
+
+class Base91Test(unittest.TestCase):
+
+    def test_static_refurbish(self):
+        data = base91.decode("The quick brown fox\tjumps\nover\rthe lazy dog")
+        assert data == [0xbc, 0x43, 0x41, 0x8d, 0xa9, 0xde, 0x32, 0x61, 0x92, 0x8b, 0xdf, 0x81, 0x33, 0x53, 0x64, 0x68,
+                        0xe4, 0x12, 0x1c, 0xb4, 0x6d, 0xca, 0xc3, 0x67, 0xc2, 0x44]
+        pangram = base91.encode(data)
+        self.assertEqual("Thequickbrownfoxjumpsoverthelazydog", pangram)
