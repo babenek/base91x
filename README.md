@@ -5,7 +5,7 @@ using numeric system of base 91 with specific alphabet that does not require
 escaping any symbols in C, C++ (and other?) string.
 
 
-The alphabet contains printable characters of ASCII except:
+The alphabet contains visible printable characters of ASCII except:
 
 " Quotation mark
 
