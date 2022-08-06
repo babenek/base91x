@@ -57,9 +57,11 @@ jobs:
       with:
         python-version: 3.7
 
-    - name: Install requirements
-      run: |
-        pip install --requirement requirements.txt
+    - name: Install pytest
+      run: pip install pytest
+
+    - name: Tests
+      run: pytest
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
