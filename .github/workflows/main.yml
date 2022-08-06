@@ -62,13 +62,13 @@ jobs:
       run: python base91.py -e orig.dat py.txt
 
     - name: Encode with cpp
-      run: base91 -e orig.dat cpp.txt
+      run: ./base91 -e orig.dat cpp.txt
 
     - name: Compare text
       run: diff py.txt cpp.txt
 
     - name: Decode with cpp
-      run: base91 -d py.txt cpp.dat
+      run: ./base91 -d py.txt cpp.dat
 
     - name: Decode with python
       run: python base91.py -d cpp.txt py.dat
