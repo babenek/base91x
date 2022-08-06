@@ -12,7 +12,7 @@ jobs:
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
@@ -29,39 +29,61 @@ jobs:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
 
+    # c++
+
     - name: CMake
       run: cmake .
 
     - name: Make
       run: make all
 
-    - name: Test
+    - name: C++ Unit Tests
       run: make test
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # python:
 
-  python:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
-
-    - name: Set up Python 3.7
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: 3.9
 
     - name: Install pytest
       run: pip install pytest
 
-    - name: Tests
+    - name: Python Unit Tests
       run: pytest
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # cross tests
 
+    - name: Make random bytes
+      run: dd if=/dev/urandom of=orig.dat bs=1 count=$RANDOM
+
+    - name: Encode with python
+      run: python base91.py -e orig.dat py.txt
+
+    - name: Encode with cpp
+      run: base91 -e orig.dat cpp.txt
+
+    - name: Compare text
+      run: diff py.txt cpp.txt
+
+    - name: Decode with cpp
+      run: base91 -d py.txt cpp.dat
+
+    - name: Decode with python
+      run: python base91.py -d cpp.txt py.dat
+
+    - name: Compare refurbish data
+      run: |
+        HASH_ORIG=$(sha256sum orig.dat | cut -c -64)
+        echo "HASH_ORIG='${HASH_ORIG}'"
+        HASH_CPP=$(sha256sum cpp.dat | cut -c -64)
+        echo "HASH_CPP='${HASH_CPP}'"
+        HASH_PY=$(sha256sum py.dat | cut -c -64)
+        echo "HASH_PY='${HASH_PY}'"
+        if [ -n "${HASH_ORIG}" ] && [ "${HASH_ORIG}" == "${HASH_CPP}" ] && [ "${HASH_ORIG}" == "${HASH_PY}" ]; then
+          echo "OK"
+        else
+          echo "FAIL"
+          exit 1
+        fi

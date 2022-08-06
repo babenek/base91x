@@ -839,6 +839,11 @@ def decode(text: str) -> bytearray:
 
 
 def main(argv) -> int:
+    """main function
+    argv[1]: -e|-d
+    argv[2]: input file
+    argv[3]: output file
+    """
     result = 1
     if 4 == len(argv):
         if '-e' == argv[1]:
@@ -846,13 +851,11 @@ def main(argv) -> int:
                 with open(argv[3], 'wt', encoding='ascii') as out_file:
                     out_file.write(encode(in_file.read()))
                     result = 0
-            pass
         elif '-d' == argv[1]:
             with open(argv[2], 'rt', encoding='ascii', errors='ignore') as in_file:
                 with open(argv[3], 'wb') as out_file:
                     out_file.write(decode(in_file.read()))
                     result = 0
-            pass
 
     if 0 != result:
         print("base91 -e|-d <in-file> <out-file>")
