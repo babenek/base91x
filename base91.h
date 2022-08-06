@@ -174,7 +174,6 @@ public:
     static void encode(const Container &in, std::string &out,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
-        out.clear();
         out.reserve(compute_encoded_size(in.size()));
 
         auto HI = new char[b91word_size];
@@ -240,7 +239,6 @@ public:
     static void decode(const std::string &in, Container &out,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
-        out.clear();
         out.reserve(assume_decoded_size(in.size()));
 
         auto ZYX = new char[1 << char_bit];
