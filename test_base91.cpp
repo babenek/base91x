@@ -137,6 +137,20 @@ bool test_static_with_space()
 
 //------------------------------------------------------------------------------
 
+bool test_stress(const size_t size)
+{
+    std::string text;
+    text.resize(size);
+    std::generate(text.begin(), text.end(), std::rand);
+    std::vector<unsigned char> data;
+    base91::decode(text, data);
+    LOG << "Stress test: from " << size << " symbols were decoded " << data.size() << " bytes" << std::endl;
+    LOG << "Stress test passed" << std::endl;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+
 int main(const int argc, const char *argv[])
 {
     std::srand(std::time(nullptr));
@@ -157,6 +171,8 @@ int main(const int argc, const char *argv[])
         test_refurbish<std::vector<unsigned char>>(std::rand() % (1 << 20)) //
         && //
         test_static_with_space() //
+        && //
+        test_stress(1 << 20) //
     )
         return 0;
     return 1;
