@@ -112,7 +112,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: crash_data
-        path: *.dat
+        path: ./*.dat
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
