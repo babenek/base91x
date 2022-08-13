@@ -43,10 +43,15 @@ b91word_size = 0x2000
 b91word_mask = 0x1FFF
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 def encode(data: bytes) -> str:
-    """
-    :param data:
-    :return:
+    """Encodes bytes to base91 text
+
+    Args:
+        data: input bytes
+    Return:
+        string with encoded data
     """
     text = ""
 
@@ -70,11 +75,15 @@ def encode(data: bytes) -> str:
     return text
 
 
-def decode(text: str) -> bytearray:
-    """
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-    :param text:
-    :return:
+def decode(text: str) -> bytearray:
+    """Decodes text with the base91 algorithm, skipping wrong symbols
+
+    Args:
+        text: input string with encoded data
+    Return:
+        decoded bytes
     """
     data = bytearray()
     collector: int = 0
@@ -107,13 +116,15 @@ def decode(text: str) -> bytearray:
 
     if -1 != lower:
         collector |= lower << bit_collected
-        bit_collected += (char_bit - 1)
+        bit_collected += 7  # char_bit - 1
 
     if char_bit <= bit_collected:
         data.append(0xFF & collector)
 
     return data
 
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def main(argv) -> int:
     """main function
