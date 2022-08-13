@@ -50,7 +50,7 @@ class base91
 {
 private:
     /** BASE91 JSON OPTIMIZED ALPHABET: */
-    static constexpr unsigned char BASE91_ALPHABET[92]
+    static constexpr unsigned char BASE91_ALPHABET[]
         = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%";
 
     /** Base of the numeric system is 91dec equals ASCII symbol [ */
@@ -67,68 +67,6 @@ private:
 
     /** Mask for 13 bits */
     static const unsigned b91word_mask = 0x1FFF;
-
-protected:
-    /**
-     * Convert number 0 - 90 to symbol
-     * @param a[in] - number 0 - 90
-     * @return symbol from alphabet or -1 if input is out of alphabet
-     */
-    static inline char encodeSymbol(const char a)
-    {
-        switch (a)
-        {
-            case '\0':
-                return '!';
-                break;
-            case '#':
-                return '#';
-                break;
-            case 'X':
-                return '$';
-                break;
-            default:
-                if ('\0' <= a and BASE91_LEN > a)
-                {
-                    return 0x7F ^ a;
-                }
-                break;
-        }
-        return -1;
-    }
-
-    /**
-     * Convert base91 symbol to decimal values
-     * @param a[in] - any symbol
-     * @return 0-90 if symbol is in alphabet -1 - in other case
-     */
-    static inline char decodeSymbol(const char a)
-    {
-        switch (a)
-        {
-            case '!': {
-                return '\0';
-            }
-            break;
-            case '#': {
-                return '#';
-            }
-            break;
-            case '$': {
-                return 'X';
-            }
-            break;
-            default: {
-
-                if ('!' <= a and '~' >= a and '\'' != a and '\"' != a and '\\' != a)
-                {
-                    return 0x7F ^ a;
-                }
-            }
-            break;
-        }
-        return -1;
-    }
 
 public:
     /**
@@ -166,28 +104,28 @@ public:
 
     /**
      * Encode 8bit based container(vector) to string
-     * @param in - 8bit based std::vector
-     * @param out - std::string
+     * @param data[IN] - 8bit based std::vector
+     * @param text[OUT] - std::string
      * @param dummy - do not use
      */
     template <typename Container>
-    static void encode(const Container &in, std::string &out,
+    static void encode(const Container &data, std::string &text,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
-        out.reserve(compute_encoded_size(in.size()));
+        text.reserve(compute_encoded_size(data.size()));
 
         unsigned collector = 0;
         unsigned bit_collected = 0;
 
-        for (auto &n : in)
+        for (auto &n : data)
         {
             collector |= static_cast<unsigned char>(n) << bit_collected;
             bit_collected += char_bit;
             while (b91word_bit <= bit_collected)
             {
                 const unsigned cod = b91word_mask & collector;
-                out.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
-                out.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
+                text.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
+                text.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
                 collector >>= b91word_bit;
                 bit_collected -= b91word_bit;
             }
@@ -196,18 +134,16 @@ public:
         if (0 != bit_collected)
         {
             const unsigned cod = b91word_mask & collector;
-            out.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
+            text.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
             if (7 <= bit_collected)
-                out.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
+                text.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
         }
-
-        return;
     }
 
     /**
      * Decode string to binary std::vector
-     * @param text - std::string
-     * @param data - std::vector of 8bit elements
+     * @param text[IN] - std::string
+     * @param data[OUT] - std::vector of 8bit elements
      * @param dummy - do not use
      */
     template <typename Container>
@@ -219,10 +155,10 @@ public:
         unsigned collector = 0;
         int bit_collected = 0;
         char lower = -1;
-        char digit = -1;
+
         for (auto &i : text)
         {
-            digit = -1;
+            char digit = -1;
             if ((92 < i and i < 127) or (39 < i and  i< 92) or (36 < i and i< 39))
                 digit = 0x7F ^ i;
             else if (33 == i)
@@ -234,8 +170,10 @@ public:
             else
                 continue;
             if (-1 == lower)
+            {
                 lower = digit;
                 continue;
+            }
 
             collector |= (BASE91_LEN * digit + lower) << bit_collected;
             bit_collected += b91word_bit;
@@ -243,7 +181,7 @@ public:
 
             while (char_bit <= bit_collected)
             {
-                data.push_back(static_cast<char>(0xFF & collector));
+                data.push_back(static_cast<unsigned char>(0xFF & collector));
                 collector >>= char_bit;
                 bit_collected -= char_bit;
             }
@@ -256,9 +194,7 @@ public:
         }
 
         if (char_bit <= bit_collected)
-        {
-            data.push_back(static_cast<char>(0xFF & collector));
-        }
+            data.push_back(static_cast<unsigned char>(0xFF & collector));
     }
 };
 
