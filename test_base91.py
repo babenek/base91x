@@ -11,7 +11,7 @@ DATA = [88, 136, 162, 112, 31, 156, 195, 75, 208, 5, 61, 106, 20, 163, 227, 172,
 
 
 def test_static_alphabet():
-    assert len(base91.alphabet) == base91.base
+    assert len(base91.BASE91_ALPHABET) == base91.BASE91_LEN
 
 
 def test_static_decode():

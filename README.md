@@ -7,11 +7,11 @@ escaping any symbols in C, C++ (and other?) string.
 
 The alphabet contains visible printable characters of ASCII except:
 
-" Quotation mark
+`"` Quotation mark
 
-' Apostrophe
+`'` Apostrophe
 
-\ Backslash
+`\` Backslash
 
 An encoded string might be used for JSON string if JSON does not require to escape / Slash.
 
@@ -23,8 +23,9 @@ The alphabet transforms from base91 value with operation XOR(0x7F) with tree exc
 
 The alphabet:
 
+```
 !~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%
-
+```
 PAY ATTENTION:
 Encoded string may have unpleased sequence /* or */ 
 It may hurt C or C++ code when the string is placed into code.
