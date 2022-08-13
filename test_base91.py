@@ -55,7 +55,7 @@ def test_stress_ascii_decode():
     text = ""
     text_size = random.randint(0, 65536)
     while text_size > len(text):
-        text += chr(random.choice(string.printable))
+        text += random.choice(string.printable)
     assert len(text) == text_size
     data = base91.decode(text)
     assert len(data) <= text_size
