@@ -100,7 +100,7 @@ jobs:
         echo "TRASH_HASH_CPP='${TRASH_HASH_CPP}'"
         TRASH_HASH_PY=$(sha256sum trash_py.dat | cut -c -64)
         echo "TRASH_HASH_PY='${TRASH_HASH_PY}'"
-        if [ "${TRASH_HASH_ORIG}" == "${TRASH_HASH_CPP}" ]; then
+        if [ -n "${TRASH_HASH_CPP}" ] && [ "${TRASH_HASH_CPP}" == "${TRASH_HASH_PY}" ]; then
           echo "OK"
         else
           echo "FAIL"
