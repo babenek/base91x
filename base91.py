@@ -226,31 +226,6 @@ LO: bytes = \
     b"!~"
 
 
-def _decode_chunk(hi: int, lo: int) -> int:
-    if 90 > hi:
-        return base * hi + lo
-    elif 90 == hi:
-        if 0 == lo:
-            return 8190
-        elif 1 == lo:
-            return 8191
-    return -1
-
-
-def _decode_symbol(a: str) -> int:
-    x = ord(a)
-    if 92 < x < 127 or 39 < x < 92 or 36 < x < 39:
-        return 0x7F ^ x
-    elif 33 == x:
-        return 0
-    elif 35 == x:
-        return 35
-    elif 36 == x:
-        return 88
-    else:
-        return -1
-
-
 def encode(data: bytes) -> str:
     """
     :param data:
@@ -289,18 +264,22 @@ def decode(text: str) -> bytearray:
     bit_collected: int = 0
     lower: int = -1
     for symbol in text:
-        digit = _decode_symbol(symbol)
-        if -1 == digit:
+        x = ord(symbol)
+        if 92 < x < 127 or 39 < x < 92 or 36 < x < 39:
+            digit = 0x7F ^ x
+        elif 33 == x:
+            digit = 0
+        elif 35 == x:
+            digit = 35
+        elif 36 == x:
+            digit = 88
+        else:
             continue
         if -1 == lower:
             lower = digit
             continue
-        cod = _decode_chunk(digit, lower)
-        if (b91word_mask & cod) != cod:
-            lower = -1
-            continue
 
-        collector |= cod << bit_collected
+        collector |= (base * digit + lower) << bit_collected
         bit_collected += b91word_bit
         lower = -1
 
@@ -310,7 +289,7 @@ def decode(text: str) -> bytearray:
             bit_collected -= char_bit
 
     if -1 != lower:
-        collector |= _decode_chunk(0, lower) << bit_collected
+        collector |= lower << bit_collected
         bit_collected += (char_bit - 1)
 
     if char_bit <= bit_collected:
