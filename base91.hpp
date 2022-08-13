@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
+//#include <cstdlib>
 
 #if __CHAR_BIT__ != 8
 #error DESIGNED ONLY FOR 8 BIT BYTE (CHAR)
@@ -49,12 +50,8 @@ SOFTWARE.
 class base91
 {
 private:
-    /** BASE91 JSON OPTIMIZED ALPHABET: */
-    static constexpr unsigned char BASE91_ALPHABET[]
-        = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%";
-
     /** Base of the numeric system is 91dec equals ASCII symbol [ */
-    static const char BASE91_LEN = 91; // '['
+    static const char BASE91_LEN = 91;
 
     /** Bits in one byte. Should be 8 */
     static const unsigned char_bit = __CHAR_BIT__;
@@ -97,7 +94,7 @@ public:
      */
     static inline size_t assume_decoded_size(size_t size)
     {
-        size *= 13;
+        size *= b91word_bit;
         size >>= 4;
         return size;
     }
@@ -112,20 +109,25 @@ public:
     static void encode(const Container &data, std::string &text,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
+        /** BASE91 JSON OPTIMIZED ALPHABET: */
+        static constexpr unsigned char BASE91_ALPHABET[]
+            = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%";
+
+        text.clear();
         text.reserve(compute_encoded_size(data.size()));
 
         unsigned collector = 0;
         unsigned bit_collected = 0;
 
-        for (auto &n : data)
+        for (auto &i : data)
         {
-            collector |= static_cast<unsigned char>(n) << bit_collected;
+            collector |= static_cast<unsigned char>(i) << bit_collected;
             bit_collected += char_bit;
             while (b91word_bit <= bit_collected)
             {
-                const unsigned cod = b91word_mask & collector;
-                text.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
-                text.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
+                div_t d = std::div(b91word_mask & collector, BASE91_LEN);
+                text.push_back(BASE91_ALPHABET[d.rem]);
+                text.push_back(BASE91_ALPHABET[d.quot]);
                 collector >>= b91word_bit;
                 bit_collected -= b91word_bit;
             }
@@ -133,10 +135,10 @@ public:
 
         if (0 != bit_collected)
         {
-            const unsigned cod = b91word_mask & collector;
-            text.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
+            const div_t d = std::div(b91word_mask & collector, BASE91_LEN);
+            text.push_back(BASE91_ALPHABET[d.rem]);
             if (7 <= bit_collected)
-                text.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
+                text.push_back(BASE91_ALPHABET[d.quot]);
         }
     }
 
@@ -150,6 +152,15 @@ public:
     static void decode(const std::string &text, Container &data,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
+        /** BASE91 reverse table for quick decoding */
+        static const char BASE91_ZYX[0x80] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 35, 88, 90, 89, -1, 87, 86, 85, 84,
+            83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58,
+            57, 56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, -1, 34, 33, 32,
+            31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4,
+            3, 2, 1, -1};
+
+        data.clear();
         data.reserve(assume_decoded_size(text.size()));
 
         unsigned collector = 0;
@@ -158,17 +169,11 @@ public:
 
         for (auto &i : text)
         {
-            char digit = -1;
-            if ((92 < i and i < 127) or (39 < i and  i< 92) or (36 < i and i< 39))
-                digit = 0x7F ^ i;
-            else if (33 == i)
-                digit = 0;
-            else if (35 == i)
-                digit = 35;
-            else if (36 == i)
-                digit = 88;
-            else
+            const char digit = BASE91_ZYX[0x7F & i];
+            if (-1 == digit)
+            {
                 continue;
+            }
             if (-1 == lower)
             {
                 lower = digit;

@@ -32,13 +32,16 @@ jobs:
     # c++
 
     - name: CMake
-      run: cmake .
+      run: cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_FLAGS=" -O " .
 
     - name: Make
       run: make all
 
     - name: C++ Unit Tests
       run: make test
+
+    - name: C++ Performance Tests
+      run: ./perf_base91
 
     # python:
 
