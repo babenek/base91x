@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "base91.h"
+#include "base91.hpp"
 
 #define LOG std::cerr << "L_" << __LINE__ << ": "
 

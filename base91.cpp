@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "base91.h"
+#include "base91.hpp"
 
 //------------------------------------------------------------------------------
 
