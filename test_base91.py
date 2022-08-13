@@ -1,4 +1,5 @@
 import random
+import string
 from random import randbytes
 
 import base91
@@ -40,11 +41,21 @@ def test_refurbish_large():
     assert original_data == refurbish_data, text
 
 
-def test_stress_decode():
+def test_stress_full_decode():
     text = ""
     text_size = random.randint(0, 65536)
     while text_size > len(text):
         text += chr(random.randint(0, 0x10FFFF))
+    assert len(text) == text_size
+    data = base91.decode(text)
+    assert len(data) <= text_size
+
+
+def test_stress_ascii_decode():
+    text = ""
+    text_size = random.randint(0, 65536)
+    while text_size > len(text):
+        text += chr(random.choice(string.printable))
     assert len(text) == text_size
     data = base91.decode(text)
     assert len(data) <= text_size
