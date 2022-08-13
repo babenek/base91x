@@ -51,7 +51,7 @@ jobs:
       run: pip install pytest
 
     - name: Python Unit Tests
-      run: pytest
+      run: pytest --count=100 --random-order-bucket=global
 
     # cross tests
 
