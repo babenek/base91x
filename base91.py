@@ -1,4 +1,4 @@
-"""
+"""Base91 encoder-decoder
 MIT License
 
 Copyright (c) 2022 Roman Babenko
@@ -24,23 +24,23 @@ SOFTWARE.
 
 import sys
 
-# Base91 alphabet in order
-alphabet = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%"
+# Base91 BASE91_ALPHABET in order
+BASE91_ALPHABET = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%"
 
 # Base of the numeric system is 91 dec equals ASCII symbol [
-base = ord('[')
+BASE91_LEN = 91  # ord('[')
 
 # Bits in one byte. Should be 8
-char_bit = 8
+CHAR_BIT = 8
 
 # Pair of base91 symbols might code 13 bits
-b91word_bit = 13
+BASE91_WORD_BIT = 13
 
 # 8192 possibly values for 13 bits
-b91word_size = 0x2000
+BASE91_WORD_SIZE = 0x2000
 
 # Mask for 13 bits
-b91word_mask = 0x1FFF
+BASE91_WORD_MASK = 0x1FFF
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -57,21 +57,21 @@ def encode(data: bytes) -> str:
 
     collector: int = 0
     bit_collected: int = 0
-    for n in data:
-        collector |= n << bit_collected
-        bit_collected += char_bit
-        while b91word_bit <= bit_collected:
-            cod = b91word_mask & collector
-            text += alphabet[cod % base]
-            text += alphabet[cod // base]
-            collector >>= b91word_bit
-            bit_collected -= b91word_bit
+    for i in data:
+        collector |= i << bit_collected
+        bit_collected += CHAR_BIT
+        while BASE91_WORD_BIT <= bit_collected:
+            cod = BASE91_WORD_MASK & collector
+            text += BASE91_ALPHABET[cod % BASE91_LEN]
+            text += BASE91_ALPHABET[cod // BASE91_LEN]
+            collector >>= BASE91_WORD_BIT
+            bit_collected -= BASE91_WORD_BIT
 
     if 0 != bit_collected:
-        cod = b91word_mask & collector
-        text += alphabet[cod % base]
+        cod = BASE91_WORD_MASK & collector
+        text += BASE91_ALPHABET[cod % BASE91_LEN]
         if 7 <= bit_collected:
-            text += alphabet[cod // base]
+            text += BASE91_ALPHABET[cod // BASE91_LEN]
     return text
 
 
@@ -90,14 +90,14 @@ def decode(text: str) -> bytearray:
     bit_collected: int = 0
     lower: int = -1
     for symbol in text:
-        x = ord(symbol)
-        if 92 < x < 127 or 39 < x < 92 or 36 < x < 39:
-            digit = 0x7F ^ x
-        elif 33 == x:
+        i = ord(symbol)
+        if 92 < i < 127 or 39 < i < 92 or 36 < i < 39:
+            digit = 0x7F ^ i
+        elif 33 == i:
             digit = 0
-        elif 35 == x:
+        elif 35 == i:
             digit = 35
-        elif 36 == x:
+        elif 36 == i:
             digit = 88
         else:
             continue
@@ -105,20 +105,20 @@ def decode(text: str) -> bytearray:
             lower = digit
             continue
 
-        collector |= (base * digit + lower) << bit_collected
-        bit_collected += b91word_bit
+        collector |= (BASE91_LEN * digit + lower) << bit_collected
+        bit_collected += BASE91_WORD_BIT
         lower = -1
 
-        while char_bit <= bit_collected:
+        while CHAR_BIT <= bit_collected:
             data.append(0xFF & collector)
-            collector >>= char_bit
-            bit_collected -= char_bit
+            collector >>= CHAR_BIT
+            bit_collected -= CHAR_BIT
 
     if -1 != lower:
         collector |= lower << bit_collected
-        bit_collected += 7  # char_bit - 1
+        bit_collected += 7  # CHAR_BIT - 1
 
-    if char_bit <= bit_collected:
+    if CHAR_BIT <= bit_collected:
         data.append(0xFF & collector)
 
     return data
@@ -128,9 +128,13 @@ def decode(text: str) -> bytearray:
 
 def main(argv) -> int:
     """main function
-    argv[1]: -e|-d
-    argv[2]: input file
-    argv[3]: output file
+
+    Args:
+        argv[1]: -e|-d
+        argv[2]: input file
+        argv[3]: output file
+    Return:
+        EXIT_SUCCESS if no exception was thrown
     """
     result = 1
     if 4 == len(argv):
