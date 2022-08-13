@@ -97,13 +97,22 @@ jobs:
     - name: Compare trash data
       run: |
         TRASH_HASH_CPP=$(sha256sum trash_cpp.dat | cut -c -64)
-        echo "TRASH_HASH_CPP='${HASH_CPP}'"
+        echo "TRASH_HASH_CPP='${TRASH_HASH_CPP}'"
         TRASH_HASH_PY=$(sha256sum trash_py.dat | cut -c -64)
-        echo "HASH_PY='${TRASH_HASH_PY}'"
+        echo "TRASH_HASH_PY='${TRASH_HASH_PY}'"
         if [ "${TRASH_HASH_ORIG}" == "${TRASH_HASH_CPP}" ]; then
           echo "OK"
         else
           echo "FAIL"
           exit 1
         fi
+
+    - name: Failure data upload
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: crash_data
+        path: *.dat
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
