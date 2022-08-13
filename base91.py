@@ -28,7 +28,7 @@ import sys
 BASE91_ALPHABET = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%"
 
 # Base of the numeric system is 91 dec equals ASCII symbol [
-BASE91_LEN = 91  # ord('[')
+BASE91_LEN = 91
 
 # Bits in one byte. Should be 8
 CHAR_BIT = 8
