@@ -48,7 +48,7 @@ jobs:
         python-version: 3.9
 
     - name: Install pytest
-      run: pip install pytest
+      run: pip install pytest pytest-random-order pytest-repeat
 
     - name: Python Unit Tests
       run: pytest --count=100 --random-order-bucket=global
