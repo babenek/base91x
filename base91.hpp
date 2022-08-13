@@ -49,12 +49,12 @@ SOFTWARE.
 class base91
 {
 private:
-    /*
-    BASE91 JSON OPTIMIZED ALPHABET:
-!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-+*)($&%
-    */
+    /** BASE91 JSON OPTIMIZED ALPHABET: */
+    static constexpr unsigned char BASE91_ALPHABET[92]
+        = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%";
+
     /** Base of the numeric system is 91dec equals ASCII symbol [ */
-    static const char base = '[';
+    static const char BASE91_LEN = 91; // '['
 
     /** Bits in one byte. Should be 8 */
     static const unsigned char_bit = __CHAR_BIT__;
@@ -88,7 +88,7 @@ protected:
                 return '$';
                 break;
             default:
-                if ('\0' <= a and base > a)
+                if ('\0' <= a and BASE91_LEN > a)
                 {
                     return 0x7F ^ a;
                 }
@@ -176,26 +176,6 @@ public:
     {
         out.reserve(compute_encoded_size(in.size()));
 
-        auto HI = new char[b91word_size];
-        auto LO = new char[b91word_size];
-        {
-            // initialize encoder
-            char hi = 0;
-            char lo = 0;
-            unsigned n = 0;
-            while (n < b91word_size)
-            {
-                LO[n] = encodeSymbol(lo);
-                HI[n] = encodeSymbol(hi);
-                if (base == (++lo))
-                {
-                    lo = 0;
-                    hi++;
-                }
-                n++;
-            }
-        }
-
         unsigned collector = 0;
         unsigned bit_collected = 0;
 
@@ -206,8 +186,8 @@ public:
             while (b91word_bit <= bit_collected)
             {
                 const unsigned cod = b91word_mask & collector;
-                out.push_back(LO[cod]);
-                out.push_back(HI[cod]);
+                out.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
+                out.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
                 collector >>= b91word_bit;
                 bit_collected -= b91word_bit;
             }
@@ -216,93 +196,54 @@ public:
         if (0 != bit_collected)
         {
             const unsigned cod = b91word_mask & collector;
-            out.push_back(LO[cod]);
+            out.push_back(BASE91_ALPHABET[cod % BASE91_LEN]);
             if (7 <= bit_collected)
-            {
-                out.push_back(HI[cod]);
-            }
+                out.push_back(BASE91_ALPHABET[cod / BASE91_LEN]);
         }
-
-        delete[] LO;
-        delete[] HI;
 
         return;
     }
 
     /**
      * Decode string to binary std::vector
-     * @param in - std::string
-     * @param out - std::vector of 8bit elements
+     * @param text - std::string
+     * @param data - std::vector of 8bit elements
      * @param dummy - do not use
      */
     template <typename Container>
-    static void decode(const std::string &in, Container &out,
+    static void decode(const std::string &text, Container &data,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
-        out.reserve(assume_decoded_size(in.size()));
-
-        auto ZYX = new char[1 << char_bit];
-        for (unsigned n = 0; n < (1 << char_bit); ++n)
-        {
-            // fill reverse alphabet
-            ZYX[n] = decodeSymbol(n);
-        }
-        auto HILO = new short[base][base];
-        {
-            // fill reverse codes
-            unsigned hi = 0;
-            unsigned lo = 0;
-            //            std::cerr << "[[";
-            for (unsigned n = 0; n < b91word_size; ++n)
-            {
-                //                std::cerr << n << ",";
-                HILO[hi][lo] = n;
-                if (base == (++lo))
-                {
-                    lo = 0;
-                    hi++;
-                    //                    std::cerr << "]," << std::endl << "[";
-                }
-            }
-            // subzero values to optional purpose
-            for (int n = 2; n < static_cast<int>(base); ++n)
-            {
-                HILO[base - 1][n] = 0 - n;
-                //                std::cerr << 0 - n << ",";
-            }
-            //            std::cerr << "]]" << std::endl;
-        }
+        data.reserve(assume_decoded_size(text.size()));
 
         unsigned collector = 0;
         int bit_collected = 0;
         char lower = -1;
-
-        for (auto &n : in)
+        char digit = -1;
+        for (auto &i : text)
         {
-            const char digit = ZYX[n];
-            if (-1 == digit)
-            {
+            digit = -1;
+            if ((92 < i and i < 127) or (39 < i and  i< 92) or (36 < i and i< 39))
+                digit = 0x7F ^ i;
+            else if (33 == i)
+                digit = 0;
+            else if (35 == i)
+                digit = 35;
+            else if (36 == i)
+                digit = 88;
+            else
                 continue;
-            }
             if (-1 == lower)
-            {
                 lower = digit;
                 continue;
-            }
-            const short cod = HILO[digit][lower];
-            if ((b91word_mask & cod) != cod)
-            {
-                lower = -1;
-                continue;
-                // there is possibility to use 89 subzero values as codes
-            }
-            collector |= cod << bit_collected;
+
+            collector |= (BASE91_LEN * digit + lower) << bit_collected;
             bit_collected += b91word_bit;
             lower = -1;
 
             while (char_bit <= bit_collected)
             {
-                out.push_back(static_cast<char>(0xFF & collector));
+                data.push_back(static_cast<char>(0xFF & collector));
                 collector >>= char_bit;
                 bit_collected -= char_bit;
             }
@@ -310,17 +251,14 @@ public:
 
         if (-1 != lower)
         {
-            collector |= HILO[0][lower] << bit_collected;
+            collector |= lower << bit_collected;
             bit_collected += (char_bit - 1);
         }
 
         if (char_bit <= bit_collected)
         {
-            out.push_back(static_cast<char>(0xFF & collector));
+            data.push_back(static_cast<char>(0xFF & collector));
         }
-
-        delete[] HILO;
-        delete[] ZYX;
     }
 };
 
