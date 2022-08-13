@@ -153,7 +153,7 @@ public:
         data.reserve(assume_decoded_size(text.size()));
 
         unsigned collector = 0;
-        int bit_collected = 0;
+        unsigned bit_collected = 0;
         char lower = -1;
 
         for (auto &i : text)
