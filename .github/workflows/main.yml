@@ -87,3 +87,23 @@ jobs:
           echo "FAIL"
           exit 1
         fi
+
+    - name: Trash decoding with python
+      run: python base91.py -d orig.dat trash_py.dat
+      
+    - name: Trash decoding with cpp
+      run: ./base91 -d orig.dat trash_cpp.dat
+
+    - name: Compare trash data
+      run: |
+        TRASH_HASH_CPP=$(sha256sum trash_cpp.dat | cut -c -64)
+        echo "TRASH_HASH_CPP='${HASH_CPP}'"
+        TRASH_HASH_PY=$(sha256sum trash_py.dat | cut -c -64)
+        echo "HASH_PY='${TRASH_HASH_PY}'"
+        if [ "${TRASH_HASH_ORIG}" == "${TRASH_HASH_CPP}" ]; then
+          echo "OK"
+        else
+          echo "FAIL"
+          exit 1
+        fi
+
