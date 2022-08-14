@@ -11,8 +11,73 @@
 
 //------------------------------------------------------------------------------
 
-const std::string base91_alphabet
-    = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%";
+bool in_abc(char i)
+{
+    return ((92 < i and i < 127) or (39 < i and i < 92) or (36 < i and i < 39) or 33 == i or 35 == i or 36 == i);
+}
+
+//------------------------------------------------------------------------------
+
+bool test_alphabets()
+{
+    if (91 != sizeof(base91::BASE91_ALPHABET))
+    {
+        LOG << "Wrong size of direct alphabet "<<  sizeof(base91::BASE91_ALPHABET) << std::endl;
+        return false;
+    }
+
+    if (0x80 != sizeof(base91::BASE91_ZYX))
+    {
+        LOG << "Wrong size of reverse alphabet" << std::endl;
+        return false;
+    }
+
+    for (unsigned n = 0; n < sizeof(base91::BASE91_ZYX); ++n)
+    {
+        char digit = -2;
+        if ((92 < n and n < 127) or (39 < n and n < 92) or (36 < n and n < 39))
+            digit = 0x7F ^ n;
+        else if (33 == n)
+            digit = 0;
+        else if (35 == n)
+            digit = 35;
+        else if (36 == n)
+            digit = 88;
+        else
+            digit = -1;
+
+        if (digit != base91::BASE91_ZYX[n])
+        {
+            LOG << "error on " << n << " element" << std::endl;
+            return false;
+        }
+    }
+    for (auto &i : base91::BASE91_ALPHABET)
+    {
+        if (sizeof(base91::BASE91_ZYX) <= i)
+        {
+            LOG << "out of size " << (i) << " element" << std::endl;
+            return false;
+        }
+        if (0 > base91::BASE91_ZYX[i])
+        {
+            LOG << "error on " << i << " element" << std::endl;
+            return false;
+        }
+        if (not in_abc(i))
+        {
+            LOG << "wrong " << i << " element" << std::endl;
+            return false;
+        }
+    }
+
+    //        const char digit = BASE91_ZYX[0x7F & i];
+
+    LOG << "Alphabets tests passed" << std::endl;
+    return true;
+}
+
+//------------------------------------------------------------------------------
 
 template <typename T>
 bool test_refurbish(const size_t size)
@@ -27,9 +92,9 @@ bool test_refurbish(const size_t size)
     // verify whether encoded text contains symbols from base91 alphabet only
     for (auto it_text : text)
     {
-        if (std::string::npos == base91_alphabet.find(it_text))
+        if (not in_abc(it_text))
         {
-            LOG << "error on " << n << " element '" << it_text << "' not in '" << base91_alphabet << "'"
+            LOG << "error on " << n << " element '" << it_text << "' not in '" << base91::BASE91_ALPHABET << "'"
                 << std::endl;
             return false;
         }
@@ -174,6 +239,8 @@ int main(const int argc, const char *argv[])
         test_refurbish<std::vector<unsigned char>>(std::rand() % (1 << 20)) //
         && //
         test_static_with_space() //
+        && //
+        test_alphabets() //
         && //
         test_stress(1 << 20) //
     )

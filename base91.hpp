@@ -49,7 +49,7 @@ SOFTWARE.
 
 class base91
 {
-private:
+public:
     /** Base of the numeric system is 91dec equals ASCII symbol [ */
     static const char BASE91_LEN = 91;
 
@@ -65,7 +65,20 @@ private:
     /** Mask for 13 bits */
     static const unsigned b91word_mask = 0x1FFF;
 
-public:
+    /** BASE91 JSON OPTIMIZED ALPHABET: */
+    static constexpr unsigned char BASE91_ALPHABET[BASE91_LEN] = {'!', '~', '}', '|', '{', 'z', 'y', 'x', 'w', 'v',
+        'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a', '`',
+        '_', '^', ']', '#', '[', 'Z', 'Y', 'X', 'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O', 'N', 'M', 'L', 'K', 'J',
+        'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A', '@', '?', '>', '=', '<', ';', ':', '9', '8', '7', '6', '5', '4',
+        '3', '2', '1', '0', '/', '.', '-', ',', '+', '*', ')', '(', '$', '&', '%'};
+
+    /** BASE91 reverse table for quick decoding */
+    static constexpr char BASE91_ZYX[0x80] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 35, 88, 90, 89, -1, 87, 86, 85, 84, 83,
+        82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58, 57, 56,
+        55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, -1, 34, 33, 32, 31, 30, 29,
+        28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, -1};
+
     /**
      * Calculate exactly size required for encoded data
      * @param size - size of data to encoding
@@ -109,10 +122,6 @@ public:
     static void encode(const Container &data, std::string &text,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
-        /** BASE91 JSON OPTIMIZED ALPHABET: */
-        static constexpr unsigned char BASE91_ALPHABET[]
-            = "!~}|{zyxwvutsrqponmlkjihgfedcba`_^]#[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)($&%";
-
         text.clear();
         text.reserve(compute_encoded_size(data.size()));
 
@@ -152,14 +161,6 @@ public:
     static void decode(const std::string &text, Container &data,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
-        /** BASE91 reverse table for quick decoding */
-        static const char BASE91_ZYX[0x80] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 35, 88, 90, 89, -1, 87, 86, 85, 84,
-            83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58,
-            57, 56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, -1, 34, 33, 32,
-            31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4,
-            3, 2, 1, -1};
-
         data.clear();
         data.reserve(assume_decoded_size(text.size()));
 
