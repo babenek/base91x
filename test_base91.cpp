@@ -94,8 +94,7 @@ bool test_refurbish(const size_t size)
     {
         if (not in_abc(it_text))
         {
-            LOG << "error on " << n << " element '" << it_text << "' not in '" << base91::BASE91_ALPHABET << "'"
-                << std::endl;
+            LOG << "error on " << n << " element '" << it_text << "' not in base91::BASE91_ALPHABET" << std::endl;
             return false;
         }
         ++n;
