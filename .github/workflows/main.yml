@@ -56,6 +56,9 @@ jobs:
     - name: Python Unit Tests
       run: pytest --count=100 --random-order-bucket=global
 
+    - name: Python Performance Test
+      run: python perf_base91.py
+
     # cross tests
 
     - name: Make random bytes
