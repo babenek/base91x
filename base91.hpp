@@ -154,7 +154,9 @@ public:
             const div_t d = std::div(b91word_mask & collector, BASE91_LEN);
             text.push_back(BASE91_ALPHABET[d.rem]);
             if (7 <= bit_collected)
+            {
                 text.push_back(BASE91_ALPHABET[d.quot]);
+            }
         }
     }
 
@@ -178,7 +180,9 @@ public:
         for (const auto &i : text)
         {
             if (zyx_mask < static_cast<unsigned char>(i))
+            {
                 continue;
+            }
             const char digit = BASE91_ZYX[zyx_mask & i];
             if (-1 == digit)
             {
