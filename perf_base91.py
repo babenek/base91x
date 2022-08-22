@@ -7,7 +7,7 @@ from typing import List
 import base91
 
 LEN = 100
-SIZE = 1 << 22
+SIZE = 1 << 18
 
 
 def perf_test() -> int:
