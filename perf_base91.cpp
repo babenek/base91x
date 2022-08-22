@@ -9,6 +9,8 @@
 
 #define LOG std::cerr << "L_" << __LINE__ << ": "
 
+static const size_t LEN = 100;
+
 //------------------------------------------------------------------------------
 
 void time_stat_encode(const size_t size)
@@ -18,7 +20,6 @@ void time_stat_encode(const size_t size)
     std::generate(data.begin(), data.end(), std::rand);
     std::string text;
 
-    const size_t LEN = 100;
     long double stat[LEN] = {0};
     long double avg = 0;
     long double sum = 0;
@@ -55,7 +56,6 @@ void time_stat_decode(const size_t size)
     std::string text;
     base91::encode(data, text);
 
-    const size_t LEN = 100;
     long double stat[LEN] = {0};
     long double avg = 0;
     long double sum = 0;

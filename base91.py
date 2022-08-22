@@ -42,6 +42,21 @@ BASE91_WORD_SIZE = 0x2000
 # Mask for 13 bits
 BASE91_WORD_MASK = 0x1FFF
 
+# BASE91 reverse table for quick decoding
+BASE91_ZYX = [
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  #
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  #
+    -1, 0, -1, 35, 88, 90, 89, -1, 87, 86, 85, 84, 83, 82, 81, 80,  #
+    79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64,  #
+    63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 48,  #
+    47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, -1, 34, 33, 32,  #
+    31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,  #
+    15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, -1]
+
+ZYX_LEN = len(BASE91_ZYX)
+
+ZYX_MASK = ZYX_LEN - 1
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -62,16 +77,18 @@ def encode(data: bytes) -> str:
         bit_collected += CHAR_BIT
         while BASE91_WORD_BIT <= bit_collected:
             cod = BASE91_WORD_MASK & collector
-            text += BASE91_ALPHABET[cod % BASE91_LEN]
-            text += BASE91_ALPHABET[cod // BASE91_LEN]
+            quotient, remainder = divmod(cod, BASE91_LEN)
+            text += BASE91_ALPHABET[remainder]
+            text += BASE91_ALPHABET[quotient]
             collector >>= BASE91_WORD_BIT
             bit_collected -= BASE91_WORD_BIT
 
     if 0 != bit_collected:
         cod = BASE91_WORD_MASK & collector
-        text += BASE91_ALPHABET[cod % BASE91_LEN]
+        quotient, remainder = divmod(cod, BASE91_LEN)
+        text += BASE91_ALPHABET[remainder]
         if 7 <= bit_collected:
-            text += BASE91_ALPHABET[cod // BASE91_LEN]
+            text += BASE91_ALPHABET[quotient]
     return text
 
 
@@ -85,21 +102,17 @@ def decode(text: str) -> bytearray:
     Return:
         decoded bytes
     """
+
     data = bytearray()
     collector: int = 0
     bit_collected: int = 0
     lower: int = -1
     for symbol in text:
         i = ord(symbol)
-        if 92 < i < 127 or 39 < i < 92 or 36 < i < 39:
-            digit = 0x7F ^ i
-        elif 33 == i:
-            digit = 0
-        elif 35 == i:
-            digit = 35
-        elif 36 == i:
-            digit = 88
-        else:
+        if ZYX_MASK < i:
+            continue
+        digit = BASE91_ZYX[ZYX_MASK & i]
+        if -1 == digit:
             continue
         if -1 == lower:
             lower = digit
