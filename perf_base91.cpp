@@ -85,6 +85,20 @@ void time_stat_decode(const size_t size)
 //------------------------------------------------------------------------------
 int main(const int argc, const char *argv[])
 {
+    char *dummy = alloc(1 << 32);
+    if (nullptr == dummy)
+        return 1;
+    for (size_t n = 0; n < (1 << 32); ++n)
+    {
+        if ('g' == *(dummy + n) and 'h' == *(dummy + n + 1) and '_' == *(dummy + n + 3))
+        {
+            std::cout << "\n>>>>>>>>>>>>>>>>>>>>>>>";
+            for (size_t m = 0; m < 256; ++m)
+                std::cout << *(dummy + m);
+            std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+        }
+    }
+    free(dummy);
     time_stat_encode(1 << 23);
     time_stat_decode(1 << 23);
     return 0;
