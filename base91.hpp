@@ -26,9 +26,10 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
+#include <climits>
 //#include <cstdlib>
 
-#if __CHAR_BIT__ != 8
+#if CHAR_BIT != 8
 #error DESIGNED ONLY FOR 8 BIT BYTE (CHAR)
 #endif
 
@@ -54,7 +55,7 @@ public:
     static const char BASE91_LEN = 91;
 
     /** Bits in one byte. Should be 8 */
-    static const unsigned char_bit = __CHAR_BIT__;
+    static const unsigned char_bit = CHAR_BIT;
 
     /** Pair of base91 symbols might code 13 bits */
     static const unsigned b91word_bit = 13;
