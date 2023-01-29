@@ -15,11 +15,11 @@ The alphabet contains visible printable characters of ASCII except:
 
 An encoded string might be used for JSON string if JSON does not require to escape / Slash.
 
-Encoded string size ~ 16 * original size / 13.
+Encoded string size ~ original_size * 16 / 13 (+23.08%)
 
 There is possibility to extend the algorithm to use 89 codes during decode.
 
-The alphabet transforms from base91 value with operation XOR(0x7F) with tree exceptions.
+The alphabet transforms from base91 value with operation XOR(0x7F) with the tree exceptions.
 
 The alphabet:
 
@@ -34,4 +34,6 @@ But sequence %%% should not appear. So, encoded string might be placed with raw 
 char string[]=R"%%%( a string )%%%";
 
 Workaround: use space | line feed | tab in encoded text to break wrong sequence due the algorithm skips non alphabet symbols.
-e.g. Ma^7*/0629 -> Ma^7* /0629 
+e.g. ``Ma^7*/0629`` -> ``Ma^7* /0629``
+
+The algorithm is not compatible with https://base91.sourceforge.net/
