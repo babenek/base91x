@@ -1,8 +1,9 @@
-# base91
+# base91x
 
 This base91 method provides data encoding and decoding 
 using numeric system of base 91 with specific alphabet that does not require
-escaping any symbols in C, C++ (and other?) string.
+escaping any symbols in C, C++ (and many other languages?) string.
+'x' - means the alphabet was obtained with XOR function.
 
 
 The alphabet contains visible printable characters of ASCII except:
@@ -15,7 +16,7 @@ The alphabet contains visible printable characters of ASCII except:
 
 An encoded string might be used for JSON string if JSON does not require to escape / Slash.
 
-Encoded string size ~ original_size * 16 / 13 (+23.08%)
+Encoded string size ~ 16 * original size / 13.
 
 There is possibility to extend the algorithm to use 89 codes during decode.
 
