@@ -35,7 +35,7 @@ SOFTWARE.
 
 //------------------------------------------------------------------------------
 /**
- * Class base91 provides encoding and decoding statics methods
+ * Class base91x provides encoding and decoding statics methods
  * using numeric system of base 91 with specific alphabet that does not require
  * escaping any symbols in C, C++ string.
  * The alphabet contains printable characters of ASCII except:
@@ -48,16 +48,16 @@ SOFTWARE.
  * There is possibility to extend the algorithm to use 89 codes during decode.
  */
 
-class base91
+class base91x
 {
 public:
     /** Base of the numeric system is 91dec equals ASCII symbol [ */
-    static const char BASE91_LEN = 91;
+    static const char BASE91X_LEN = 91;
 
     /** Bits in one byte. Should be 8 */
     static const unsigned char_bit = CHAR_BIT;
 
-    /** Pair of base91 symbols might code 13 bits */
+    /** Pair of base91x symbols might code 13 bits */
     static const unsigned b91word_bit = 13;
 
     /** 8192 possibly values for 13 bits */
@@ -72,15 +72,15 @@ public:
     /** Mask for reverse alphabet */
     static constexpr unsigned zyx_mask = ZYX_LEN - 1;
 
-    /** BASE91 JSON OPTIMIZED ALPHABET: */
-    static constexpr unsigned char BASE91_ALPHABET[BASE91_LEN] = {'!', '~', '}', '|', '{', 'z', 'y', 'x', 'w', 'v',
+    /** base91x JSON OPTIMIZED ALPHABET: */
+    static constexpr unsigned char BASE91X_ALPHABET[BASE91X_LEN] = {'!', '~', '}', '|', '{', 'z', 'y', 'x', 'w', 'v',
         'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a', '`',
         '_', '^', ']', '#', '[', 'Z', 'Y', 'X', 'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O', 'N', 'M', 'L', 'K', 'J',
         'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A', '@', '?', '>', '=', '<', ';', ':', '9', '8', '7', '6', '5', '4',
         '3', '2', '1', '0', '/', '.', '-', ',', '+', '*', ')', '(', '$', '&', '%'};
 
-    /** BASE91 reverse table for quick decoding */
-    static constexpr char BASE91_ZYX[ZYX_LEN]
+    /** base91x reverse table for quick decoding */
+    static constexpr char BASE91X_ZYX[ZYX_LEN]
         = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, 0, -1, 35, 88, 90, 89, -1, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76,
             75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50,
@@ -142,9 +142,9 @@ public:
             bit_collected += char_bit;
             while (b91word_bit <= bit_collected)
             {
-                div_t d = std::div(b91word_mask & collector, BASE91_LEN);
-                text.push_back(BASE91_ALPHABET[d.rem]);
-                text.push_back(BASE91_ALPHABET[d.quot]);
+                div_t d = std::div(b91word_mask & collector, BASE91X_LEN);
+                text.push_back(BASE91X_ALPHABET[d.rem]);
+                text.push_back(BASE91X_ALPHABET[d.quot]);
                 collector >>= b91word_bit;
                 bit_collected -= b91word_bit;
             }
@@ -152,11 +152,11 @@ public:
 
         if (0 != bit_collected)
         {
-            const div_t d = std::div(b91word_mask & collector, BASE91_LEN);
-            text.push_back(BASE91_ALPHABET[d.rem]);
+            const div_t d = std::div(b91word_mask & collector, BASE91X_LEN);
+            text.push_back(BASE91X_ALPHABET[d.rem]);
             if (7 <= bit_collected)
             {
-                text.push_back(BASE91_ALPHABET[d.quot]);
+                text.push_back(BASE91X_ALPHABET[d.quot]);
             }
         }
     }
@@ -184,7 +184,7 @@ public:
             {
                 continue;
             }
-            const char digit = BASE91_ZYX[zyx_mask & i];
+            const char digit = BASE91X_ZYX[zyx_mask & i];
             if (-1 == digit)
             {
                 continue;
@@ -195,7 +195,7 @@ public:
                 continue;
             }
 
-            collector |= (BASE91_LEN * digit + lower) << bit_collected;
+            collector |= (BASE91X_LEN * digit + lower) << bit_collected;
             bit_collected += b91word_bit;
             lower = -1;
 

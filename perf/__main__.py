@@ -1,10 +1,33 @@
+"""
+MIT License
+
+Copyright (c) 2023 Roman Babenko
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 import math
 import random
 import sys
 import time
 from typing import List
 
-import base91
+from src.base91x import base91x
 
 LEN = 100
 SIZE = 1 << 18
@@ -24,9 +47,9 @@ def perf_test() -> int:
     for n in range(LEN):
         data = random.randbytes(SIZE)
         start_time = time.time()
-        text = base91.encode(data)
+        text = base91x.encode(data)
         encoding_stop_time = time.time()
-        refurbish_data = base91.decode(text)
+        refurbish_data = base91x.decode(text)
         decoding_stop_time = time.time()
         assert data == refurbish_data
         encoding_elapsed_time = encoding_stop_time - start_time
@@ -60,7 +83,5 @@ def main() -> int:
     return 0
 
 
-assert 3 == sys.version_info.major and 9 <= sys.version_info.minor
-
-if "__main__" == __name__:
+if __name__ == "__main__":
     sys.exit(main())

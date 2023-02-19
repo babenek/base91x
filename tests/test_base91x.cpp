@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2023 Roman Babenko
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -5,7 +28,7 @@
 #include <chrono>
 #include <cmath>
 
-#include "base91.hpp"
+#include "base91x.hpp"
 
 #define LOG std::cerr << "L_" << __LINE__ << ": "
 
@@ -20,19 +43,19 @@ bool in_abc(char i)
 
 bool test_alphabets()
 {
-    if (91 != sizeof(base91::BASE91_ALPHABET))
+    if (91 != sizeof(base91x::BASE91X_ALPHABET))
     {
-        LOG << "Wrong size of direct alphabet "<<  sizeof(base91::BASE91_ALPHABET) << std::endl;
+        LOG << "Wrong size of direct alphabet "<<  sizeof(base91x::BASE91X_ALPHABET) << std::endl;
         return false;
     }
 
-    if (0x80 != sizeof(base91::BASE91_ZYX))
+    if (0x80 != sizeof(base91x::BASE91X_ZYX))
     {
         LOG << "Wrong size of reverse alphabet" << std::endl;
         return false;
     }
 
-    for (unsigned n = 0; n < sizeof(base91::BASE91_ZYX); ++n)
+    for (unsigned n = 0; n < sizeof(base91x::BASE91X_ZYX); ++n)
     {
         char digit = -2;
         if ((92 < n and n < 127) or (39 < n and n < 92) or (36 < n and n < 39))
@@ -46,20 +69,20 @@ bool test_alphabets()
         else
             digit = -1;
 
-        if (digit != base91::BASE91_ZYX[n])
+        if (digit != base91x::BASE91X_ZYX[n])
         {
             LOG << "error on " << n << " element" << std::endl;
             return false;
         }
     }
-    for (auto &i : base91::BASE91_ALPHABET)
+    for (auto &i : base91x::BASE91X_ALPHABET)
     {
-        if (sizeof(base91::BASE91_ZYX) <= i)
+        if (sizeof(base91x::BASE91X_ZYX) <= i)
         {
             LOG << "out of size " << (i) << " element" << std::endl;
             return false;
         }
-        if (0 > base91::BASE91_ZYX[i])
+        if (0 > base91x::BASE91X_ZYX[i])
         {
             LOG << "error on " << i << " element" << std::endl;
             return false;
@@ -71,7 +94,7 @@ bool test_alphabets()
         }
     }
 
-    //        const char digit = BASE91_ZYX[0x7F & i];
+    //        const char digit = BASE91X_ZYX[0x7F & i];
 
     LOG << "Alphabets tests passed" << std::endl;
     return true;
@@ -86,15 +109,15 @@ bool test_refurbish(const size_t size)
     std::generate(data_original.begin(), data_original.end(), std::rand);
 
     std::string text;
-    base91::encode(data_original, text);
+    base91x::encode(data_original, text);
 
     size_t n = 0;
-    // verify whether encoded text contains symbols from base91 alphabet only
+    // verify whether encoded text contains symbols from base91x alphabet only
     for (auto it_text : text)
     {
         if (not in_abc(it_text))
         {
-            LOG << "error on " << n << " element '" << it_text << "' not in base91::BASE91_ALPHABET" << std::endl;
+            LOG << "error on " << n << " element '" << it_text << "' not in base91x::BASE91X_ALPHABET" << std::endl;
             return false;
         }
         ++n;
@@ -111,7 +134,7 @@ bool test_refurbish(const size_t size)
     }
 
     T data_refurbed;
-    base91::decode(text, data_refurbed);
+    base91x::decode(text, data_refurbed);
 
     if (data_original.size() != data_refurbed.size())
     {
@@ -136,15 +159,15 @@ bool test_refurbish(const size_t size)
     }
     LOG << "Test passed with size = " << data_original.size() << std::endl;
 
-    if (base91::compute_encoded_size(size) != text.size())
+    if (base91x::compute_encoded_size(size) != text.size())
     {
-        LOG << "computed " << base91::compute_encoded_size(size) << " != " << text.size() << std::endl;
+        LOG << "computed " << base91x::compute_encoded_size(size) << " != " << text.size() << std::endl;
         return false;
     }
 
-    if (base91::assume_decoded_size(text.size()) != size)
+    if (base91x::assume_decoded_size(text.size()) != size)
     {
-        LOG << "assumed " << base91::assume_decoded_size(size) << " != " << text.size() << std::endl;
+        LOG << "assumed " << base91x::assume_decoded_size(size) << " != " << text.size() << std::endl;
         return false;
     }
 
@@ -158,7 +181,7 @@ bool test_static_with_space()
     const std::string pangram_test = "* / * / *The quick brown fox\tjumps\nover\rthe lazy dog { < # > }";
     const std::string pangram_expected = "*/*/*Thequickbrownfoxjumpsoverthelazydog{<#>}";
     std::vector<unsigned char> data;
-    base91::decode(pangram_test, data);
+    base91x::decode(pangram_test, data);
 
     const std::vector<unsigned char> data_expected = {197, 188, 152, 123, 190, 170, 196, 57, 20, 212, 152, 234, 45,
         19, 38, 185, 248, 29, 56, 51, 69, 134, 70, 46, 193, 65, 219, 166, 60, 124, 38, 76, 84, 125, 125, 174};
@@ -191,7 +214,7 @@ bool test_static_with_space()
     }
 
     std::string pangram_refurb;
-    base91::encode(data, pangram_refurb);
+    base91x::encode(data, pangram_refurb);
 
     if (pangram_expected != pangram_refurb)
     {
@@ -210,7 +233,7 @@ bool test_stress(const size_t size)
     text.resize(size);
     std::generate(text.begin(), text.end(), std::rand);
     std::vector<unsigned char> data;
-    base91::decode(text, data);
+    base91x::decode(text, data);
     LOG << "Stress test: from " << size << " symbols were decoded " << data.size() << " bytes" << std::endl;
     LOG << "Stress test passed" << std::endl;
     return true;
