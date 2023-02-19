@@ -6,11 +6,10 @@ on:
   pull_request:
     branches: [ main ]
   release:
-    types: [created]
+    types: [ released ]
 
 jobs:
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   test:
 
@@ -18,107 +17,120 @@ jobs:
 
     steps:
 
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJSON(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
 
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
+      # # # # c++
 
-    # c++
+      - name: CMake
+        run: cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_FLAGS=" -O " .
 
-    - name: CMake
-      run: cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_FLAGS=" -O " .
+      - name: Make
+        run: make all
 
-    - name: Make
-      run: make all
+      - name: C++ Unit Tests
+        run: make test
 
-    - name: C++ Unit Tests
-      run: make test
+      - name: C++ Performance Tests
+        run: make perf
 
-    - name: C++ Performance Tests
-      run: ./perf_base91
+      # # # # python:
 
-    # python:
+      - name: Set up latest Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.x
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
+      - name: Update PIP
+        run: python -m pip install --upgrade pip
 
-    - name: Install pytest
-      run: pip install pytest pytest-random-order pytest-repeat
+      - name: Install requirements
+        run: pip install --requirement requirements.txt
 
-    - name: Python Unit Tests
-      run: pytest --count=100 --random-order-bucket=global
+      - name: Update PIP
+        run: python -m pip install --upgrade pip
 
-    - name: Python Performance Test
-      run: python perf_base91.py
+      - name: Python Unit Tests
+        run: pytest --count=10 --random-order-bucket=global
 
-    # cross tests
+      - name: Python Performance Test
+        run: python -m perf
 
-    - name: Make random bytes
-      run: dd if=/dev/urandom of=orig.dat bs=1 count=$RANDOM
+      - name: Build package
+        run: python -m build
 
-    - name: Encode with python
-      run: python base91.py -e orig.dat py.txt
+      - name: Install package
+        run: python -m pip install $(find dist -type f -wholename "*.whl")
 
-    - name: Encode with cpp
-      run: ./base91 -e orig.dat cpp.txt
+      # # # # cross tests
 
-    - name: Compare text
-      run: diff py.txt cpp.txt
+      - name: Make random bytes
+        run: dd if=/dev/urandom of=orig.dat bs=1 count=$RANDOM
 
-    - name: Decode with cpp
-      run: ./base91 -d py.txt cpp.dat
+      - name: Encode with python
+        run: python -m base91x -e orig.dat py.txt
 
-    - name: Decode with python
-      run: python base91.py -d cpp.txt py.dat
+      - name: Encode with cpp
+        run: ./base91x -e orig.dat cpp.txt
 
-    - name: Compare refurbish data
-      run: |
-        HASH_ORIG=$(sha256sum orig.dat | cut -c -64)
-        echo "HASH_ORIG='${HASH_ORIG}'"
-        HASH_CPP=$(sha256sum cpp.dat | cut -c -64)
-        echo "HASH_CPP='${HASH_CPP}'"
-        HASH_PY=$(sha256sum py.dat | cut -c -64)
-        echo "HASH_PY='${HASH_PY}'"
-        if [ -n "${HASH_ORIG}" ] && [ "${HASH_ORIG}" == "${HASH_CPP}" ] && [ "${HASH_ORIG}" == "${HASH_PY}" ]; then
-          echo "OK"
-        else
-          echo "FAIL"
-          exit 1
-        fi
+      - name: Compare text
+        run: diff py.txt cpp.txt
 
-    - name: Trash decoding with python
-      run: python base91.py -d orig.dat trash_py.dat
-      
-    - name: Trash decoding with cpp
-      run: ./base91 -d orig.dat trash_cpp.dat
+      - name: Decode with cpp
+        run: ./base91x -d py.txt cpp.dat
 
-    - name: Compare trash data
-      run: |
-        TRASH_HASH_CPP=$(sha256sum trash_cpp.dat | cut -c -64)
-        echo "TRASH_HASH_CPP='${TRASH_HASH_CPP}'"
-        TRASH_HASH_PY=$(sha256sum trash_py.dat | cut -c -64)
-        echo "TRASH_HASH_PY='${TRASH_HASH_PY}'"
-        if [ -n "${TRASH_HASH_CPP}" ] && [ "${TRASH_HASH_CPP}" == "${TRASH_HASH_PY}" ]; then
-          echo "OK"
-        else
-          echo "FAIL"
-          exit 1
-        fi
+      - name: Decode with python
+        run: python -m base91x -d cpp.txt py.dat
 
-    - name: Failure data upload
-      if: ${{ failure() }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: crash_data
-        path: ./*.dat
+      - name: Compare refurbish data
+        run: |
+          HASH_ORIG=$(sha256sum orig.dat | cut -c -64)
+          echo "HASH_ORIG='${HASH_ORIG}'"
+          HASH_CPP=$(sha256sum cpp.dat | cut -c -64)
+          echo "HASH_CPP='${HASH_CPP}'"
+          HASH_PY=$(sha256sum py.dat | cut -c -64)
+          echo "HASH_PY='${HASH_PY}'"
+          if [ -n "${HASH_ORIG}" ] && [ "${HASH_ORIG}" == "${HASH_CPP}" ] && [ "${HASH_ORIG}" == "${HASH_PY}" ]; then
+            echo "OK"
+          else
+            echo "FAIL"
+            exit 1
+          fi
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      - name: Trash decoding with python
+        run: python -m base91x -d orig.dat trash_py.dat
 
+      - name: Trash decoding with cpp
+        run: ./base91x -d orig.dat trash_cpp.dat
+
+      - name: Compare trash data
+        run: |
+          TRASH_HASH_CPP=$(sha256sum trash_cpp.dat | cut -c -64)
+          echo "TRASH_HASH_CPP='${TRASH_HASH_CPP}'"
+          TRASH_HASH_PY=$(sha256sum trash_py.dat | cut -c -64)
+          echo "TRASH_HASH_PY='${TRASH_HASH_PY}'"
+          if [ -n "${TRASH_HASH_CPP}" ] && [ "${TRASH_HASH_CPP}" == "${TRASH_HASH_PY}" ]; then
+            echo "OK"
+          else
+            echo "FAIL"
+            exit 1
+          fi
+
+      - name: Failure data upload
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: crash_data
+          path: ./*.dat
+
+      # # # # deploy if release
+
+      - name: Publish
+        if: ${{ 'release' == github.event_name }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
