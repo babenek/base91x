@@ -9,9 +9,11 @@ keywords = ["encode", "decode", "base91x"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Intended Audience :: Developers",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Software Development :: Libraries :: Python Modules"
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
 
 [project.urls]
@@ -24,7 +26,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["*"]
 
-[options.package_data]
-base91x = ["*"]
+[tool.setuptools.package-data]
+base91x = ["py.typed"]
