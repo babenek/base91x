@@ -1,4 +1,12 @@
 # base91x
+https://pypi.org/project/base91x/
+
+
+[![Test](https://github.com/babenek/base91x/actions/workflows/main.yml/badge.svg)](https://github.com/babenek/base91x/actions/workflows/main.yml)
+[![GitHub release (latestSemVer)](https://img.shields.io/github/v/release/babenek/base91x)](https://github.com/babenek/base91x/releases)
+[![PyPI](https://img.shields.io/pypi/v/base91x)](https://pypi.org/project/base91x/)
+[![License](https://img.shields.io/badge/licence-MIT-green.svg?style=flat)](LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/base91x.svg)](https://badge.fury.io/py/base91x)
 
 This base91x method provides data encoding and decoding 
 using numeric system of base 91 with specific alphabet that does not require
