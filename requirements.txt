@@ -6,3 +6,4 @@ setuptools
 pytest
 pytest-random-order
 pytest-repeat
+pytest-cov
