@@ -51,12 +51,13 @@ jobs:
         run: pip install --requirement requirements.txt
 
       - name: Python Unit Tests
-        run: pytest --random-order-bucket=global --cov=src --cov-report xml:coverage.xml
+        run: pytest --random-order-bucket=global --cov=src --cov-report xml:xmlcov/coverage.xml
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: xmlcov/coverage.xml
 
       - name: Python Performance Test
         run: python -m perf
