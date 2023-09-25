@@ -54,7 +54,7 @@ jobs:
         run: python -m pip install --upgrade pip
 
       - name: Python Unit Tests
-        run: pytest --random-order-bucket=global --cov=src --cov-report xml:xmlcov/coverage.xml
+        run: pytest --random-order-bucket=global --cov=src --cov-report xml:coverage.xml
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
