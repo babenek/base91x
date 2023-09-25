@@ -50,9 +50,6 @@ jobs:
       - name: Install requirements
         run: pip install --requirement requirements.txt
 
-      - name: Update PIP
-        run: python -m pip install --upgrade pip
-
       - name: Python Unit Tests
         run: pytest --random-order-bucket=global --cov=src --cov-report xml:coverage.xml
 
