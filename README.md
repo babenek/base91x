@@ -3,7 +3,7 @@ https://pypi.org/project/base91x/
 
 
 [![Test](https://github.com/babenek/base91x/actions/workflows/main.yml/badge.svg)](https://github.com/babenek/base91x/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/babenek/base91x/graph/badge.svg?token=Q2GGZUBW0V)](https://codecov.io/gh/babenek/base91x)
+[![codecov](https://codecov.io/gh/babenek/base91x/branch/main/graph/badge.svg)](https://codecov.io/gh/babenek/base91x)
 [![GitHub release (latestSemVer)](https://img.shields.io/github/v/release/babenek/base91x)](https://github.com/babenek/base91x/releases)
 [![PyPI](https://img.shields.io/pypi/v/base91x)](https://pypi.org/project/base91x/)
 [![License](https://img.shields.io/badge/licence-MIT-green.svg?style=flat)](LICENSE)
