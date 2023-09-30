@@ -178,7 +178,7 @@ bool test_refurbish(const size_t size)
 
 bool test_static_with_space()
 {
-    const std::string pangram_test = "* / * / *The quick brown fox\tjumps\nover\rthe lazy dog { < # > }";
+    const std::string_view pangram_test = "* / * / *The quick brown fox\tjumps\nover\rthe lazy dog { < # > }";
     const std::string pangram_expected = "*/*/*Thequickbrownfoxjumpsoverthelazydog{<#>}";
     std::vector<unsigned char> data;
     base91x::decode(pangram_test, data);
