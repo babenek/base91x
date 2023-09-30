@@ -126,9 +126,10 @@ public:
      * @param text[OUT] - std::string
      * @param dummy - do not use
      */
-    template <typename Container>
-    static void encode(const Container &data, std::string &text,
-        typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
+    template <typename Container, typename Base91Text>
+    static void encode(const Container &data, Base91Text &text,
+        typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr,
+        typename std::enable_if<std::is_same<Base91Text, std::string>::value or std::is_same<std::string_view, Base91Text>::value>::type *funny = nullptr)
     {
         text.clear();
         text.reserve(compute_encoded_size(data.size()));
@@ -167,8 +168,9 @@ public:
      * @param data[OUT] - std::vector of 8bit elements
      * @param dummy - do not use
      */
-    template <typename Container>
-    static void decode(const std::string &text, Container &data,
+    template <typename Base91Text, typename Container>
+    static void decode(const Base91Text &text, Container &data,
+        typename std::enable_if<std::is_same<Base91Text, std::string>::value or std::is_same<std::string_view, Base91Text>::value>::type *funny = nullptr,
         typename std::enable_if<sizeof(typename Container::value_type) == sizeof(char)>::type *dummy = nullptr)
     {
         data.clear();
