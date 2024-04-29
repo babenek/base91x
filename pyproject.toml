@@ -1,10 +1,10 @@
 [project]
 name = "base91x"
-version = "1.0.0"
+dynamic = ["version"]
 description = "base91x encoding/decoding library"
 authors = [{ name = "Roman Babenko", email = "babenek@users.noreply.github.com" }]
-readme = "README.md"
 requires-python = ">=3.8"
+readme = "README.md"
 keywords = ["encode", "decode", "base91x"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -17,15 +17,16 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/babenek/base91"
-"Bug Tracker" = "https://github.com/babenek/base91/issues"
+"Homepage" = "https://github.com/babenek/base91x"
+"Bug Tracker" = "https://github.com/babenek/base91x/issues"
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.version]
+path = "src/base91x/__init__.py"
 
-[tool.setuptools.package-data]
-base91x = ["py.typed"]
+[project.scripts]
+base91x = "base91x.__main__:main"
+
