@@ -57,7 +57,7 @@ public:
     /** Bits in one byte. Should be 8 */
     static const unsigned char_bit = CHAR_BIT;
 
-    /** Pair of base91x symbols might code 13 bits */
+    /** Each pair of base91x symbols encodes 13 bits */
     static const unsigned b91word_bit = 13;
 
     /** 8192 possibly values for 13 bits */
