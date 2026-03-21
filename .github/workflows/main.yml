@@ -18,10 +18,18 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 2026.01.09
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
+
+      # # # # c
+
+      - name: Compile test
+        run: clang -O2 -Wall tests/test_base91x.c src/base91x.c -I include -o test_base91x_c
+
+      - name: Do test
+        run: ./test_base91x_c
 
       # # # # c++
 
@@ -40,7 +48,7 @@ jobs:
       # # # # python:
 
       - name: Set up latest Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0 2026.01.22
         with:
           python-version: 3.x
 
@@ -54,7 +62,7 @@ jobs:
         run: pytest --random-order-bucket=global --cov=src --cov-report xml:xmlcov/coverage.xml
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3 2026.03.18
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: xmlcov/coverage.xml
@@ -124,7 +132,7 @@ jobs:
 
       - name: Failure data upload
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0 2026.02.26
         with:
           name: crash_data
           path: ./*.dat
