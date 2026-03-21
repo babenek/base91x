@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2023 Roman Babenko
+Copyright (c) 2026 Roman Babenko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import binascii
+import json
 import random
 import string
+from pathlib import Path
 from random import randbytes
 
 from src.base91x import base91x
@@ -82,3 +85,53 @@ def test_stress_ascii_decode():
     assert len(text) == text_size
     data = base91x.decode(text)
     assert len(data) <= text_size
+
+
+def test_constants():
+    # ## preparation
+    # test_dict = {}
+    # for n in range(1, 64):
+    #     for m in range(32):
+    #         original_data = randbytes(n)
+    #         test_dict[binascii.hexlify(original_data).decode()] = base91x.encode(original_data)
+    # with open(Path(__file__).parent / "test.json", 'w') as o:
+    #     json.dump(test_dict, o, indent=4, sort_keys=True)
+    # del test_dict
+    # ## check algorithm stability
+    with open(Path(__file__).parent / "test.json") as f:
+        test_dict = json.load(f)
+    for hex_data, base91x_data in test_dict.items():
+        data = binascii.unhexlify(hex_data)
+        new_base91x = base91x.encode(data)
+        assert new_base91x == base91x_data
+
+
+def test_endings():
+    # zero produces zero
+    assert base91x.encode(b'') == ""
+    assert base91x.encode(b'A') == ">!"
+    assert base91x.encode(b'AA') == "O|}"
+    assert base91x.encode(b'AAA') == "O|<z"
+    assert base91x.encode(b'AAAA') == "O|ico"
+
+    # huge empty tail for 5 bytes input
+    assert base91x.encode(b'AAAAA') == "O|ic.R!"
+    # various ends may impact on result
+    assert base91x.decode("O|ic.Ro") == b'AAAAA'
+    assert base91x.decode("O|ic.Rp") == b'AAAA\xc1'
+    assert base91x.decode("O|ic.Rr") == b'AAAA\xc1'
+    assert base91x.decode("O|ic.Rs") == b'AAAAA'
+    assert base91x.decode("O|ic.Rt") == b'AAAA\xc1'
+
+    assert base91x.encode(b'AAAAAA') == "O|ic.RX~"
+    assert base91x.encode(b'AAAAAAA') == "O|ic.Rzx{"
+    assert base91x.encode(b'AAAAAAAA') == "O|ic.RzxTt"
+    assert base91x.encode(b'AAAAAAAAA') == "O|ic.RzxSG_!"
+    assert base91x.encode(b'AAAAAAAAAA') == "O|ic.RzxSG:~~"
+    assert base91x.encode(b'AAAAAAAAAAA') == "O|ic.RzxSG:~0}"
+    assert base91x.encode(b'AAAAAAAAAAAA') == "O|ic.RzxSG:~tqw"
+
+    # 13 bytes are encoded exactly to 16 symbols (8 words)
+    assert base91x.encode(b'AAAAAAAAAAAAA') == "O|ic.RzxSG:~tq)i"
+    # extra ending has no impact
+    assert base91x.decode("O|ic.RzxSG:~tq)i~") == b'AAAAAAAAAAAAA'
