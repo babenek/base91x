@@ -26,14 +26,6 @@ package base91x;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-/*
-
-TEXT = "The quick brown\r\nfox\tjumps\nover\rthe lazy\n\rdog!"
-PANGRAM = "Thequickbrownfoxjumpsoverthelazydog!"
-DATA = [88, 136, 162, 112, 31, 156, 195, 75, 208, 5, 61, 106, 20, 163, 227, 172, 240, 150, 163, 100, 63, 170, 82,
-        175, 58, 17, 203, 5, 3]
-         */
-
 public class Base91xTest {
 
     public static void main(String[] args) {
@@ -55,9 +47,8 @@ public class Base91xTest {
 
     private static void testBytes() {
         byte[] input = new byte[] { 88, (byte) 136, (byte) 162, 112, 31, (byte) 156, (byte) 195, 75, (byte) 208, 5, 61,
-                106, 20, (byte) 163, (byte) 227,
-                (byte) 172, (byte) 240, (byte) 150, (byte) 163, 100, 63, (byte) 170, 82, (byte) 175, 58, 17, (byte) 203,
-                5, 3 };
+                106, 20, (byte) 163, (byte) 227, (byte) 172, (byte) 240, (byte) 150, (byte) 163, 100, 63, (byte) 170,
+                82, (byte) 175, 58, 17, (byte) 203, 5, 3 };
 
         byte[] encoded = Base91x.encode(input);
         String actual = new String(encoded, StandardCharsets.US_ASCII);
