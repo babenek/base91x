@@ -54,12 +54,14 @@ public class Base91xTest {
     }
 
     private static void testBytes() {
-        byte[] input = new byte[] { 88,  (byte)136,  (byte)162, 112, 31,  (byte)156,  (byte)195, 75,  (byte)208, 5, 61, 106, 20,  (byte)163,  (byte)227, 
-             (byte)172,  (byte)240,  (byte)150,  (byte)163, 100, 63,  (byte)170, 82,         (byte)175, 58, 17,  (byte)203, 5, 3 };
+        byte[] input = new byte[] { 88, (byte) 136, (byte) 162, 112, 31, (byte) 156, (byte) 195, 75, (byte) 208, 5, 61,
+                106, 20, (byte) 163, (byte) 227,
+                (byte) 172, (byte) 240, (byte) 150, (byte) 163, 100, 63, (byte) 170, 82, (byte) 175, 58, 17, (byte) 203,
+                5, 3 };
 
         byte[] encoded = Base91x.encode(input);
         String actual = new String(encoded, StandardCharsets.US_ASCII);
-        assertEquals("Thequickbrownfoxjumpsoverthelazydog!", actual,"Unmatch");
+        assertEquals("Thequickbrownfoxjumpsoverthelazydog!", actual, "Unmatch");
         byte[] decoded = Base91x.decode(encoded);
 
         assertArrayEquals(input, decoded, "Bytes test failed");
@@ -86,7 +88,4 @@ public class Base91xTest {
         System.exit(1);
     }
 }
-/*
- * rm -fr out && mkdir -p out && javac -d out src/main/java/base91x/Base91x.java
- * src/test/java/base91x/Base91xTest.java && java -cp out base91x.Base91xTest
- */
+// rm -fr out && mkdir -p out && javac -d out src/main/java/base91x/Base91x.java src/test/java/base91x/Base91xTest.java && java -cp out base91x.Base91xTest
