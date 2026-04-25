@@ -48,6 +48,7 @@ jobs:
         run: make perf
 
       # # # # java:
+
       - name: Set up JDK
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # 5.2.0 - 2026.0
         with:
@@ -59,6 +60,11 @@ jobs:
 
       - name: Java Test
         run: java -cp out base91x.Base91xTest
+
+      # # # # js:
+
+      - name: JS Test
+        run: node --test
 
       # # # # python:
 
