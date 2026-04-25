@@ -25,48 +25,55 @@ package base91x;
 
 public final class Base91x {
 
-    private Base91x() {}
-
-    // --- constants ---
+    private Base91x() {
+    }
 
     private static final int BASE = 91;
     private static final int CHAR_BITS = 8;
     private static final int WORD_BITS = 13;
     private static final int WORD_MASK = 0x1FFF;
 
-    // --- alphabet ---
-
-    private static final byte[] ALPHABET = new byte[] {
-        '!', '~', '}', '|', '{', 'z', 'y', 'x', 'w', 'v',
-        'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l',
-        'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b',
-        'a', '`', '_', '^', ']', '#', '[', 'Z', 'Y', 'X',
-        'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O', 'N',
-        'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D',
-        'C', 'B', 'A', '@', '?', '>', '=', '<', ';', ':',
-        '9', '8', '7', '6', '5', '4', '3', '2', '1', '0',
-        '/', '.', '-', ',', '+', '*', ')', '(', '$', '&',
-        '%'
+    private static final byte[] BASE91X_ALPHABET = new byte[] {
+            '!', '~', '}', '|', '{', 'z', 'y', 'x', 'w', 'v',
+            'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l',
+            'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b',
+            'a', '`', '_', '^', ']', '#', '[', 'Z', 'Y', 'X',
+            'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O', 'N',
+            'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D',
+            'C', 'B', 'A', '@', '?', '>', '=', '<', ';', ':',
+            '9', '8', '7', '6', '5', '4', '3', '2', '1', '0',
+            '/', '.', '-', ',', '+', '*', ')', '(', '$', '&',
+            '%'
     };
 
-    private static final int[] REVERSE = new int[256];
-
-    static {
-        for (int i = 0; i < REVERSE.length; i++) {
-            REVERSE[i] = -1;
-        }
-        for (int i = 0; i < ALPHABET.length; i++) {
-            REVERSE[ALPHABET[i] & 0xFF] = i;
-        }
-    }
-
-    // --- size helpers ---
+    private static final byte[] BASE91X_ZYX = new byte[] {
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, +0, -1, 35, 88, 90, 89, -1, 87, 86, 85, 84, 83, 82, 81, 80,
+            79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64,
+            63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 48,
+            47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, -1, 34, 33, 32,
+            31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,
+            15, 14, 13, 12, 11, 10, +9, +8, +7, +6, +5, +4, +3, +2, +1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    };
 
     public static int computeEncodedSize(int size) {
         size <<= 4;
-        return (size % WORD_BITS != 0)
-                ? (size / WORD_BITS + 1)
-                : (size / WORD_BITS);
+        if (0 != size % WORD_BITS) {
+            size /= WORD_BITS;
+            size += 1;
+        } else {
+            size /= WORD_BITS;
+        }
+        return size;
     }
 
     public static int assumeDecodedSize(int size) {
@@ -75,10 +82,9 @@ public final class Base91x {
         return size;
     }
 
-    // --- encode ---
-
     public static byte[] encode(byte[] input) {
-        if (input == null) return null;
+        if (null == input)
+            return null;
 
         byte[] out = new byte[computeEncodedSize(input.length)];
 
@@ -90,49 +96,48 @@ public final class Base91x {
             collector |= (b & 0xFF) << bits;
             bits += CHAR_BITS;
 
-            while (bits >= WORD_BITS) {
+            while (WORD_BITS <= bits) {
                 int value = collector & WORD_MASK;
 
-                int rem = value % BASE;
                 int quot = value / BASE;
+                int rem = value % BASE;
 
-                out[outPos++] = ALPHABET[rem];
-                if (outPos >= out.length) break;
+                out[outPos++] = BASE91X_ALPHABET[rem];
+                if (outPos >= out.length)
+                    break;
 
-                out[outPos++] = ALPHABET[quot];
+                out[outPos++] = BASE91X_ALPHABET[quot];
 
                 collector >>>= WORD_BITS;
                 bits -= WORD_BITS;
             }
         }
 
-        if (bits > 0 && outPos < out.length) {
+        if (0 < bits && outPos < out.length) {
             int value = collector & WORD_MASK;
 
             int rem = value % BASE;
             int quot = value / BASE;
 
-            out[outPos++] = ALPHABET[rem];
+            out[outPos++] = BASE91X_ALPHABET[rem];
 
-            if (bits >= 7 && outPos < out.length) {
-                out[outPos++] = ALPHABET[quot];
+            if (7 <= bits && outPos < out.length) {
+                out[outPos++] = BASE91X_ALPHABET[quot];
             }
         }
 
-        if (outPos == out.length) {
+        if (out.length == outPos) {
             return out;
         }
 
-        // trim (Java-style)
         byte[] result = new byte[outPos];
         System.arraycopy(out, 0, result, 0, outPos);
         return result;
     }
 
-    // --- decode ---
-
     public static byte[] decode(byte[] input) {
-        if (input == null) return null;
+        if (null == input)
+            return null;
 
         byte[] out = new byte[assumeDecodedSize(input.length)];
 
@@ -142,10 +147,11 @@ public final class Base91x {
         int lower = -1;
 
         for (byte b : input) {
-            int digit = REVERSE[b & 0xFF];
-            if (digit == -1) continue;
+            int digit = BASE91X_ZYX[b & 0xFF];
+            if (-1 == digit)
+                continue;
 
-            if (lower == -1) {
+            if (-1 == lower) {
                 lower = digit;
                 continue;
             }
@@ -154,19 +160,19 @@ public final class Base91x {
             bits += WORD_BITS;
             lower = -1;
 
-            while (bits >= CHAR_BITS && outPos < out.length) {
+            while (CHAR_BITS <= bits && outPos < out.length) {
                 out[outPos++] = (byte) (collector & 0xFF);
                 collector >>>= CHAR_BITS;
                 bits -= CHAR_BITS;
             }
         }
 
-        if (lower != -1) {
+        if (-1 != lower) {
             collector |= lower << bits;
             bits += (CHAR_BITS - 1);
         }
 
-        if (bits >= CHAR_BITS && outPos < out.length) {
+        if (CHAR_BITS <= bits && outPos < out.length) {
             out[outPos++] = (byte) (collector & 0xFF);
         }
 

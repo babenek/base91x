@@ -26,14 +26,6 @@ package base91x;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-/*
-
-TEXT = "The quick brown\r\nfox\tjumps\nover\rthe lazy\n\rdog!"
-PANGRAM = "Thequickbrownfoxjumpsoverthelazydog!"
-DATA = [88, 136, 162, 112, 31, 156, 195, 75, 208, 5, 61, 106, 20, 163, 227, 172, 240, 150, 163, 100, 63, 170, 82,
-        175, 58, 17, 203, 5, 3]
-         */
-
 public class Base91xTest {
 
     public static void main(String[] args) {
@@ -45,28 +37,28 @@ public class Base91xTest {
     }
 
     private static void testString() {
-        String input = "hello";
+        byte[] input = "hello".getBytes(StandardCharsets.UTF_8);
 
-        String encoded = Base91x.encode(input);
-        String decoded = Base91x.decode(encoded);
+        byte[] encoded = Base91x.encode(input);
+        byte[] decoded = Base91x.decode(encoded);
 
-        assertEquals(input, decoded, "String test failed");
+        assertArrayEquals(input, decoded, "Refurbish test failed");
     }
 
     private static void testBytes() {
-        byte[] input = new byte[] { 88,  (byte)136,  (byte)162, 112, 31,  (byte)156,  (byte)195, 75,  (byte)208, 5, 61, 106, 20,  (byte)163,  (byte)227, 
-             (byte)172,  (byte)240,  (byte)150,  (byte)163, 100, 63,  (byte)170, 82,         (byte)175, 58, 17,  (byte)203, 5, 3 };
+        byte[] input = new byte[] { 88, (byte) 136, (byte) 162, 112, 31, (byte) 156, (byte) 195, 75, (byte) 208, 5, 61,
+                106, 20, (byte) 163, (byte) 227, (byte) 172, (byte) 240, (byte) 150, (byte) 163, 100, 63, (byte) 170,
+                82, (byte) 175, 58, 17, (byte) 203, 5, 3 };
 
         byte[] encoded = Base91x.encode(input);
         String actual = new String(encoded, StandardCharsets.US_ASCII);
-        assertEquals("Thequickbrownfoxjumpsoverthelazydog!", actual,"Unmatch");
+        assertEquals("Thequickbrownfoxjumpsoverthelazydog!", actual, "Unmatch");
         byte[] decoded = Base91x.decode(encoded);
 
         assertArrayEquals(input, decoded, "Bytes test failed");
     }
 
     private static void testNull() {
-        assertEquals(null, Base91x.encode((String) null), "Null string failed");
         assertEquals(null, Base91x.decode((byte[]) null), "Null bytes failed");
     }
 
@@ -87,7 +79,4 @@ public class Base91xTest {
         System.exit(1);
     }
 }
-/*
- * rm -fr out && mkdir -p out && javac -d out src/main/java/base91x/Base91x.java
- * src/test/java/base91x/Base91xTest.java && java -cp out base91x.Base91xTest
- */
+// rm -fr out && mkdir -p out && javac -d out src/main/java/base91x/Base91x.java src/test/java/base91x/Base91xTest.java && java -cp out base91x.Base91xTest
