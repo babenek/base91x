@@ -51,3 +51,10 @@ HTML built-in encoding may hurt with ``</script>`` and so on, but it is almost i
 Anyway - extra spaces do the workaround to fix parsing issue. ``< / script >`` is not valid closed tag.
 
 The algorithm is not compatible with https://base91.sourceforge.net/
+
+Current realization for:
+- [Python](./src/base91x/base91x.py)
+- [C](./src/base91x.c)
+- [C++](./include/base91x.hpp) (header realization)
+- [Java](./src/main/java/base91x/Base91x.java)
+- [JS](./src/base91x.js)
