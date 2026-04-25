@@ -28,7 +28,7 @@ import string
 from pathlib import Path
 from random import randbytes
 
-from src.base91x import base91x
+from base91x import base91x
 
 TEXT = "The quick brown\r\nfox\tjumps\nover\rthe lazy\n\rdog!"
 PANGRAM = "Thequickbrownfoxjumpsoverthelazydog!"

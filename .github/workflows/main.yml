@@ -20,7 +20,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 2026.01.09
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 - 2026.01.09
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -47,10 +47,29 @@ jobs:
       - name: C++ Performance Tests
         run: make perf
 
+      # # # # java:
+
+      - name: Set up JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # 5.2.0 - 2026.0
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Java Compilation
+        run: javac -d out src/main/java/base91x/Base91x.java src/test/java/base91x/Base91xTest.java
+
+      - name: Java Test
+        run: java -cp out base91x.Base91xTest
+
+      # # # # js:
+
+      - name: JS Test
+        run: node --test
+
       # # # # python:
 
       - name: Set up latest Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0 2026.01.22
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0 - 2026.01.22
         with:
           python-version: 3.x
 
@@ -64,7 +83,7 @@ jobs:
         run: pytest --random-order-bucket=global --cov=src --cov-report xml:xmlcov/coverage.xml
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3 2026.03.18
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3 - 2026.03.18
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: xmlcov/coverage.xml
@@ -134,7 +153,7 @@ jobs:
 
       - name: Failure data upload
         if: ${{ failure() }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0 2026.02.26
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0 - 2026.02.26
         with:
           name: crash_data
           path: ./*.dat
@@ -143,7 +162,7 @@ jobs:
 
       - name: Publish
         if: ${{ 'release' == github.event_name }}
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0 2026.09.04
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0 - 2026.09.04
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
